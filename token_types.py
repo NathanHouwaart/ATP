@@ -1,5 +1,3 @@
-import lexer
-
 from enum import Enum
 import re
 from typing import *
@@ -16,8 +14,8 @@ class TokenTypes(Enum):
     DIVIDE = 8
     MULTIPLY = 9
     SEPARATOR = 10
-    BIGGER_THAN = 11
-    SMALLER_THAN = 12
+    LEFT_PARENTHESIES = 11
+    RIGHT_PARENTHESIES = 12
     IS_EQUAL = 13
     IF = 14
     ELSE_IF = 15
@@ -29,29 +27,35 @@ class TokenTypes(Enum):
     INT = 21
     FLOAT = 22
     IDENTIFIER =23
+    EOF = 24
+    POWER = 25
+    SPACE = 26
+    NEW_LINE = 27
 
 TokenExpressions = [
-    (r"[ \n\t]+",               TokenTypes.NONE),
-    (r"#[^\n]*",                TokenTypes.NONE),
-    (r"\bƒ\b",                  TokenTypes.FUNCTION_DECLARATION),
-    (r"––>\B",                  TokenTypes.INDENTATION),
-    (r"\bα\b",                  TokenTypes.VARIABLE_DECLARATION),
-    (r"([0-9]+\.[ ]+)",         TokenTypes.LINE_NO),
-    (r"=",                      TokenTypes.IS),
-    (r"(\+)",                   TokenTypes.PLUS),
-    (r"(\-)",                   TokenTypes.MINUS),
-    (r"(\/)",                   TokenTypes.DIVIDE),
-    (r"(\*)",                   TokenTypes.MULTIPLY),
-    (r"(\|)",                   TokenTypes.SEPARATOR),
-    (r"(\>)",                   TokenTypes.BIGGER_THAN),
-    (r"(\<)",                   TokenTypes.SMALLER_THAN),
-    (r"(\==)",                  TokenTypes.IS_EQUAL),
-    (r"(\B\?\B)",               TokenTypes.IF),
-    (r"(\B¿¿\B)",               TokenTypes.ELSE_IF),
-    (r"(\B¿\B)",                TokenTypes.ELSE),
-    (r"(\B\🖨\B)",              TokenTypes.PRINT),
-    (r"(\B\📞\B)",              TokenTypes.CALL),
-    (r"(\bexit\b)",             TokenTypes.RETURN),
-    (r'[0-9]+',                 TokenTypes.INT),
-    (r'[A-Za-z][A-Za-z0-9_]*',  TokenTypes.IDENTIFIER),
+    (r"[\r]?[\n]",                  TokenTypes.NEW_LINE),
+    (r"[ \t]+",                     TokenTypes.NONE),
+    (r"#[^\n]*",                    TokenTypes.NONE),
+    (r"\bƒ\b",                      TokenTypes.FUNCTION_DECLARATION),
+    (r"––>\B",                      TokenTypes.INDENTATION),
+    (r"\bα\b",                      TokenTypes.VARIABLE_DECLARATION),
+    (r"([0-9]+\.[ ]+)",             TokenTypes.LINE_NO),
+    (r"=",                          TokenTypes.IS),
+    (r"(\+)",                       TokenTypes.PLUS),
+    (r"(\-)",                       TokenTypes.MINUS),
+    (r"(\/)",                       TokenTypes.DIVIDE),
+    (r"(\*)",                       TokenTypes.MULTIPLY),
+    (r"(\|)",                       TokenTypes.SEPARATOR),
+    (r"(\>)",                       TokenTypes.RIGHT_PARENTHESIES),
+    (r"(\<)",                       TokenTypes.LEFT_PARENTHESIES),
+    (r"(\==)",                      TokenTypes.IS_EQUAL),
+    (r"(\B\?\B)",                   TokenTypes.IF),
+    (r"(\B¿¿\B)",                   TokenTypes.ELSE_IF),
+    (r"(\B¿\B)",                    TokenTypes.ELSE),
+    (r"(\B\🖨\B)",                  TokenTypes.PRINT),
+    (r"(\B\📞\B)",                  TokenTypes.CALL),
+    (r"(\B\⚡\B)",                  TokenTypes.POWER),
+    (r"(\bexit\b)",                 TokenTypes.RETURN),
+    (r'[0-9]+\b',                   TokenTypes.INT),
+    (r'[A-Za-z][A-Za-z0-9_]*\b',    TokenTypes.IDENTIFIER),
 ]

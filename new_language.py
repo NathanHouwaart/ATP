@@ -13,4 +13,3 @@
 ƒ main ––>
     1. 🖨 functienaam = α result 
     2. 📞 symbol 
-
