@@ -34,12 +34,13 @@ class TokenTypes(Enum):
 
 TokenExpressions = [
     (r"[\r]?[\n]",                  TokenTypes.NEW_LINE),
-    (r"[ \t]+",                     TokenTypes.NONE),
+    (r"([ ][ ][ ][ ])",             TokenTypes.TAB),
+    (r"[ ]+",                       TokenTypes.NONE),
     (r"#[^\n]*",                    TokenTypes.NONE),
     (r"\bƒ\b",                      TokenTypes.FUNCTION_DECLARATION),
     (r"––>\B",                      TokenTypes.INDENTATION),
     (r"\bα\b",                      TokenTypes.VARIABLE_DECLARATION),
-    (r"([0-9]+\.[ ]+)",             TokenTypes.LINE_NO),
+    (r"([0-9]+\.)",             TokenTypes.LINE_NO),
     (r"(\==)",                      TokenTypes.IS_EQUAL),
     (r"=",                          TokenTypes.IS),
     (r"(\+)",                       TokenTypes.PLUS),
