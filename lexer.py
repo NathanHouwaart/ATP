@@ -113,17 +113,17 @@ def parse_variable_declaration(characters, tokens: List[A]):
 
 
 def parse_function_declaration(characters:str, tokens: List[A]):
-    declaration_sign, identifier, *tail = tokens
-    if identifier.tokentype_ != TokenTypes.IDENTIFIER:
-        line_no_error       = declaration_sign.loc_["start"]["line"]
-        start_index_error   = declaration_sign.loc_["start"]["index"]
-        invalid_chars       = characters.split("\n")[declaration_sign.loc_["start"]["line"]-1]
+    head, *tail = tokens
+    if head.tokentype_ != TokenTypes.IDENTIFIER:
+        line_no_error       = head.loc_["start"]["line"]
+        start_index_error   = head.loc_["start"]["index"]
+        invalid_chars       = characters.split("\n")[head.loc_["start"]["line"]-1]
         raise Exception(f"Expected identifier after function declaration\nFile <placeholder>, line {line_no_error}\n\t{invalid_chars}\n\t{' '*start_index_error+'^^^^'}")
     
     params, tokens = get_function_params(characters, tail)
     body, tokens = get_function_body(characters, tokens)
     
-    node = FunctionDeclaration(loc_={}, range_=[], id_=identifier.value_, params_=params, body_=body)
+    node = FunctionDeclaration(loc_={}, range_=[], id_=head.value_, params_=params, body_=body)
     return node, tokens
 
 def get_function_body(characters: str, tokens: List[Token]):
@@ -131,31 +131,66 @@ def get_function_body(characters: str, tokens: List[Token]):
     if head.tokentype_ == TokenTypes.NEW_LINE:
         head, *tail = tail
     if head.tokentype_ != TokenTypes.TAB:
-        return [], tail
+        return [], tail #exception
     head, *tail = tail
-    if head.tokentype_ != TokenTypes.LINE_NO:
-        line_no_error       = head.loc_["start"]["line"]
-        start_index_error   = head.loc_["start"]["index"]
-        invalid_chars       = characters.split("\n")[head.loc_["start"]["line"]-1]
-        raise Exception(f"Expected line nr. in function body (eg. 1., 2., 3.)\nFile <placeholder>, line {line_no_error}\n\t{invalid_chars}\n\t{' '*start_index_error+'^^^^'}")
-    head, *_ = tail
     # if head.tokentype_ == TokenTypes.VARIABLE_DECLARATION: 
     #     node, tokens = parse_variable_declaration(characters, tail)
     if head.tokentype_ == TokenTypes.RETURN:
         node, tokens = parse_return_statement(characters, tail)
-        return node, tokens
+        return [node], tokens
     if head.tokentype_ == TokenTypes.VARIABLE_DECLARATION:
         node, tokens = parse_variable_declaration(characters, tail)
         nodes, tokens = get_function_body(characters, tokens)
-        return [node] + [nodes], tokens
-    
+        return [node] + nodes, tokens
+    if head.tokentype_ == TokenTypes.IF:
+        node, tokens = parse_if_statement(characters, tail)
+        print(node)
+        nodes, tokens = get_function_body(characters, tokens)
+        return [node] + nodes, tokens
+    print(head.tokentype_)
 
+def parse_binary_expression(characters, tokens):
+    left, tokens = parse_expr(tokens)
+    head, *tail = tokens
+    if head.tokentype_ not in (TokenTypes.GREATER_THAN, TokenTypes.SMALLER_THAN, TokenTypes.IS_EQUAL):
+        line_no_error       = head.loc_["start"]["line"]
+        start_index_error   = head.loc_["start"]["index"]
+        invalid_chars       = characters.split("\n")[head.loc_["start"]["line"]-1]
+        raise Exception(f"Expected binary operator after expression if statement\nFile <placeholder>, line {line_no_error}\n\t{invalid_chars}\n\t{' '*start_index_error+'^^^^'}")  
+    
+    test = head
+    right, tokens = parse_expr(tail)
+    test = BinaryExpression(loc_={}, range_=[], operator_=test.tokentype_, left_=left, right_=right)
+    return parse_if_statement_test(test, characters, tokens)
+    # return test, tokens
+
+def parse_if_statement_test(node, characters:str, tokens: List[Token]):
+    print('here')
+    head, *tail = tokens
+    if head.tokentype_ in (TokenTypes.AND, TokenTypes.OR):
+        token = head
+        right, tokens = parse_binary_expression(characters, tail)
+        node = BinaryExpression(loc_={}, range_=[], operator_=head.tokentype_, left_=node, right_=right)
+        return parse_if_statement_test(node, characters, tokens)
+    return node, tokens
+
+def parse_if_statement(characters:str, tokens: List[Token]):
+    head, *tail = tokens
+    if head.tokentype_ not in (TokenTypes.IDENTIFIER, TokenTypes.FLOAT, TokenTypes.INT):
+        line_no_error       = head.loc_["start"]["line"]
+        start_index_error   = head.loc_["start"]["index"]
+        invalid_chars       = characters.split("\n")[head.loc_["start"]["line"]-1]
+        raise Exception(f"Expected identifier or literal in if statement\nFile <placeholder>, line {line_no_error}\n\t{invalid_chars}\n\t{' '*start_index_error+'^^^^'}")  
+    if head.tokentype_ == TokenTypes.INDENTATION:
+        return [], tail
+    return parse_binary_expression(characters, tokens)
+    
 def parse_return_statement(characters: str, tokens: List[Token]):
-    head, expression, *tail = tokens
-    if expression.tokentype_ not in (TokenTypes.IDENTIFIER, TokenTypes.MINUS, TokenTypes.PLUS, TokenTypes.INT, TokenTypes.FLOAT, TokenTypes.LEFT_PARENTHESIES):
-        line_no_error       = expression.loc_["start"]["line"]
-        start_index_error   = expression.loc_["start"]["index"]
-        invalid_chars       = characters.split("\n")[expression.loc_["start"]["line"]-1]
+    head, *tail = tokens
+    if head.tokentype_ not in (TokenTypes.IDENTIFIER, TokenTypes.MINUS, TokenTypes.PLUS, TokenTypes.INT, TokenTypes.FLOAT, TokenTypes.LEFT_PARENTHESIES):
+        line_no_error       = head.loc_["start"]["line"]
+        start_index_error   = head.loc_["start"]["index"]
+        invalid_chars       = characters.split("\n")[head.loc_["start"]["line"]-1]
         raise Exception(f"Expected expression after 'exit' statement\nFile <placeholder>, line {line_no_error}\n\t{invalid_chars}\n\t{' '*start_index_error+'^^^^'}")
     head, *tail = tokens
     node, tokens = parse_expr(tail)
@@ -184,7 +219,7 @@ def get_function_params(characters: str, tokens: List[Token]):
         invalid_chars       = characters.split("\n")[head.loc_["start"]["line"]-1]
         raise Exception(f"Expected '|' after variable declaration\nFile <placeholder>, line {line_no_error}\n\t{invalid_chars}\n\t{' '*start_index_error+'^^^^'}")
     head, *tail = tail
-    if head.tokentype_ != TokenTypes.VARIABLE_DECLARATION:
+    if head.tokentype_ != TokenTypes.PARAMETER:
         line_no_error       = head.loc_["start"]["line"]
         start_index_error   = head.loc_["start"]["index"]
         invalid_chars       = characters.split("\n")[head.loc_["start"]["line"]-1]
@@ -203,13 +238,14 @@ def get_function_params(characters: str, tokens: List[Token]):
 A = TypeVar('A')
 def parse(characters: str, tokens: List[A], index: int = 0):
     head, *tail = tokens
-    if head.tokentype_ == TokenTypes.LINE_NO:
-        head, *_ = tail
-        if head.tokentype_ == TokenTypes.VARIABLE_DECLARATION: 
-            node, tokens = parse_variable_declaration(characters, tail)
-            return [node] + parse(characters, tokens)
+    if head.tokentype_ == TokenTypes.VARIABLE_DECLARATION: 
+        node, tokens = parse_variable_declaration(characters, tokens)
+        return [node] + parse(characters, tokens)
     if head.tokentype_ == TokenTypes.FUNCTION_DECLARATION:
-        node, tokens = parse_function_declaration(characters, tokens)
+        node, tokens = parse_function_declaration(characters, tail)
+        return [node] + parse(characters, tokens)
+    if head.tokentype_ == TokenTypes.IF:
+        node, tokens = parse_if_statement(characters, tail)
         return [node] + parse(characters, tokens)
     if head.tokentype_ == TokenTypes.NEW_LINE:
         return parse(characters, tail)
@@ -218,27 +254,6 @@ def parse(characters: str, tokens: List[A], index: int = 0):
     print(head)
     raise Exception("Not implemented yet")
     
-
-def sort(tokens):
-    sorted_tokens = []
-    tokens_in_line = []
-    for token in tokens:
-        tokens_in_line.append(token)
-        if token.tokentype_ == TokenTypes.NEW_LINE:
-            sorted_tokens.append(tokens_in_line)
-            tokens_in_line = []
-    sorted_tokens.append(tokens_in_line)
-   
-    for i in range(len(sorted_tokens)):
-        if sorted_tokens[i][0].tokentype_ not in (TokenTypes.LINE_NO, TokenTypes.FUNCTION_DECLARATION, TokenTypes.NEW_LINE, TokenTypes.EOF, TokenTypes.TAB):
-            raise Exception("Error, codeline must start with a number: (eg. 1.,2.,3.) or must be a function declaration")
-    
-    code_lines = list(filter(lambda token: token[0].tokentype_ == TokenTypes.LINE_NO, sorted_tokens))
-    eof = list(filter(lambda token: token[0].tokentype_ == TokenTypes.EOF, sorted_tokens))
-    other = list(filter(lambda token: token[0].tokentype_ != TokenTypes.LINE_NO and token[0].tokentype_ !=  TokenTypes.EOF, sorted_tokens))
-    code_lines = sorted(code_lines, key=lambda x: int(x[0].value_[:-1]))
-    return other + code_lines + eof
-    # return sorted_tokens
 
 
 if __name__=="__main__":
@@ -253,11 +268,9 @@ if __name__=="__main__":
     tokens = list(filter(lambda token: token.tokentype_ != TokenTypes.NONE, tokens))
 
     print("Tokens:")
-    # list(map(print, tokens))
-    sorted_tokens = sort(tokens)
-    merged = list(itertools.chain(*sorted_tokens))
+    list(map(print, tokens))
     print("\n")
 
-    parsed = parse(code, merged)
+    parsed = parse(code, tokens)
     program = Program(loc_={'start': {'line': 1, 'index': 0}, "end":{"line":tokens[-1].loc_["start"]["line"], "index":tokens[-1].loc_["start"]["index"]}}, range_=[0, len(code)], body_=parsed)
     print(program)

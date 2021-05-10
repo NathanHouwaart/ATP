@@ -45,6 +45,7 @@ class Literal(Node):
 class IfStatement(Node):
     test_: Node
     consequent_: BlockStatement
+    alternate_: 'IfStatement'
 
 @dataclass(frozen=True)
 class WhileStatement(Node):
@@ -75,6 +76,11 @@ class VariableDeclaration(Node):
     id_: str
     init_: Node
 
+@dataclass(frozen=True)
+class BinaryExpression(Node):
+    operator_ : str
+    left_: Node
+    right_: Node
 #####
 #
 # OLD Nodes

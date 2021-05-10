@@ -7,7 +7,7 @@ class TokenTypes(Enum):
     FUNCTION_DECLARATION = 1
     INDENTATION = 2
     VARIABLE_DECLARATION = 3
-    LINE_NO = 4
+    CODE_LINE = 4
     IS = 5
     PLUS = 6
     MINUS = 7
@@ -31,6 +31,12 @@ class TokenTypes(Enum):
     POWER = 25
     SPACE = 26
     NEW_LINE = 27
+    GREATER_THAN = 28
+    SMALLER_THAN = 29
+    FUNCTION_LINE = 30
+    PARAMETER = 31
+    OR = 32
+    AND = 33
 
 TokenExpressions = [
     (r"[\r]?[\n]",                  TokenTypes.NEW_LINE),
@@ -39,24 +45,30 @@ TokenExpressions = [
     (r"#[^\n]*",                    TokenTypes.NONE),
     (r"\bƒ\b",                      TokenTypes.FUNCTION_DECLARATION),
     (r"––>\B",                      TokenTypes.INDENTATION),
-    (r"\bα\b",                      TokenTypes.VARIABLE_DECLARATION),
-    (r"([0-9]+\.)",             TokenTypes.LINE_NO),
+    (r"\B📁\B",                     TokenTypes.VARIABLE_DECLARATION),
+    (r"\bα\b",                      TokenTypes.PARAMETER),
+    (r"(⤷[ ])",                     TokenTypes.FUNCTION_LINE),
+    (r"(→[ ])",                     TokenTypes.CODE_LINE),
     (r"(\==)",                      TokenTypes.IS_EQUAL),
     (r"=",                          TokenTypes.IS),
     (r"(\+)",                       TokenTypes.PLUS),
     (r"(\-)",                       TokenTypes.MINUS),
     (r"(\/)",                       TokenTypes.DIVIDE),
+    (r"(\∨)",                       TokenTypes.OR),
+    (r"(\∧)",                       TokenTypes.AND),
     (r"(\*)",                       TokenTypes.MULTIPLY),
     (r"(\|)",                       TokenTypes.SEPARATOR),
     (r"(\>)",                       TokenTypes.RIGHT_PARENTHESIES),
     (r"(\<)",                       TokenTypes.LEFT_PARENTHESIES),
+    (r"\B\▲\B",                     TokenTypes.GREATER_THAN),
+    (r"\B\▼\B",                     TokenTypes.SMALLER_THAN),
     (r"(\B\?\B)",                   TokenTypes.IF),
     (r"(\B¿¿\B)",                   TokenTypes.ELSE_IF),
     (r"(\B¿\B)",                    TokenTypes.ELSE),
     (r"(\B\🖨\B)",                  TokenTypes.PRINT),
-    (r"(\B\📞\B)",                  TokenTypes.CALL),
+    (r"(\B\✆\B)",                  TokenTypes.CALL),
     (r"(\B\⚡\B)",                  TokenTypes.POWER),
-    (r"(\bexit\b)",                 TokenTypes.RETURN),
+    (r"(\B⮐\B)",                 TokenTypes.RETURN),
     (r'[0-9]+\b',                   TokenTypes.INT),
     (r'[A-Za-z][A-Za-z0-9_]*\b',    TokenTypes.IDENTIFIER),
 ]
