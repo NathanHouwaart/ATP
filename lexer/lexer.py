@@ -79,8 +79,7 @@ def lex(
     
     match, tokentype = search_match_f(characters, token_expressions, total_index)
     if not match:
-        test = characters.split("\n")[line_no-1] 
-        raise Exception(f"Invalid syntax\nFile <placeholder>, line {line_no}\n\t{test}\n\t{' '*(index+1) + '^^^^'}")
+        raise Exception(f"Invalid syntax\nFile <placeholder>, line {line_no}\n\t{characters.split('\n')[line_no-1]}\n\t{' '*(index+1) + '^^^^'}")
 
     matched_text    = match.group(0)
     offset          = match.end(0) - match.start(0)
