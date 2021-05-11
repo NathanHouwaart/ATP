@@ -9,15 +9,12 @@ import sys
 import os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.append('../')
-sys.path.append('../helper')
 
-
-from token_types import TokenExpressions
-from typing import Optional, TypeVar, Callable, List, Tuple
-from token_s import TokenTypes, Token
-from helper.error_message import generate_error_message
 import re
+
+from typing import *
+from misc.token_types import *
+from misc.error_message import generate_error_message
 
 
 def search_match(
