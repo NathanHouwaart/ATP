@@ -67,7 +67,7 @@ def lex(
         If no errors occured:
             Returns a list of lexed tokens
         If no match was found:
-            Raises a Syntax Error with a message of the invalid syntax
+            Raises a Syntax Error with a message of where the error occured
     """
     if len(characters) == total_index: # If the end characters has been reached return an EOF token
         return [Token(
@@ -79,7 +79,8 @@ def lex(
     
     match, tokentype = search_match_f(characters, token_expressions, total_index)
     if not match:
-        raise Exception(f"Invalid syntax\nFile <placeholder>, line {line_no}\n\t{characters.split('\n')[line_no-1]}\n\t{' '*(index+1) + '^^^^'}")
+        line = characters.split("\n")[line_no-1]
+        raise Exception(f"""Invalid syntax\nFile <placeholder>, line {line_no}\n\t{line}\n\t{' '*(index+1) + '^^^^'}""")
 
     matched_text    = match.group(0)
     offset          = match.end(0) - match.start(0)
