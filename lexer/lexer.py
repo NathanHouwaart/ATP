@@ -10,10 +10,13 @@ import os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append('../')
+sys.path.append('../helper')
+
 
 from token_types import TokenExpressions
 from typing import Optional, TypeVar, Callable, List, Tuple
 from token_s import TokenTypes, Token
+from helper.error_message import generate_error_message
 import re
 
 
@@ -79,8 +82,7 @@ def lex(
     
     match, tokentype = search_match_f(characters, token_expressions, total_index)
     if not match:
-        line = characters.split("\n")[line_no-1]
-        raise Exception(f"""Invalid syntax\nFile <placeholder>, line {line_no}\n\t{line}\n\t{' '*(index+1) + '^^^^'}""")
+        generate_error_message(line_no, index, characters, "Invalid Syntax", True)
 
     matched_text    = match.group(0)
     offset          = match.end(0) - match.start(0)
