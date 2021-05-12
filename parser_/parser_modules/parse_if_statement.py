@@ -8,10 +8,8 @@
 import sys
 import os
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.append('.')
-sys.path.append('../')
-sys.path.append('../helper')
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+# print(sys.modules.keys())
 
 from misc.node_types import *
 from misc.token_types import *
@@ -174,14 +172,38 @@ def parse_if_statement(
     head, *tail = trim_token_list(tail, [TokenTypes.TAB, TokenTypes.NEW_LINE])
 
     if head.tokentype_ == TokenTypes.ELSE_IF:
-        alternative, tokens = parse_if_statement(characters, tail)
-        return IfStatement(loc_={}, range_=[], test_=test, consequent_=BlockStatement(loc_={}, range_=[], body_=body), alternate_=alternative), tokens
+        alternative, tokens = parse_if_statement(characters, [head]+tail)
+        
+        loc_        = {"start": body[0].loc_["start"], "end": body[-1].loc_["end"]}
+        range_      = [body[0].range_[0], body[-1].range_[1]]
+        consequent_ = BlockStatement(loc_=loc_, range_=range_, body_=body)
+
+        loc_    = {"start": if_statement_start.loc_["start"], "end": alternative.loc_["end"]}
+        range_   = [if_statement_start.range_[0], alternative.range_[1]]
+        return IfStatement(loc_=loc_, range_=range_, test_=test, consequent_=consequent_, alternate_=alternative), tokens
     if head.tokentype_ == TokenTypes.ELSE:
         head, *tail = tail
         if head.tokentype_ != TokenTypes.INDENTATION:
             generate_error_message(head, characters, "Expected '––>' statement after else block", True)
         alternative, tokens = parser.parse(characters, tail, termination_tokens=[TokenTypes.IF_STATEMENT_END])
-        return IfStatement(loc_={}, range_=[], test_=test, consequent_=BlockStatement(loc_={}, range_=[], body_=body), alternate_=alternative), tokens
+        head, *tail = tokens
+        
+        if head.tokentype_ != TokenTypes.IF_STATEMENT_END:
+            generate_error_message(if_statement_end, characters, "Expected '¿' after if statement end", True)
+        if len(alternative) == 0:
+            generate_error_message(if_statement_end, characters, "Else statement body cannot be empty", True)
+        
+        loc_        = {"start": body[0].loc_["start"], "end": body[-1].loc_["end"]}
+        range_      = [body[0].range_[0], body[-1].range_[1]]
+        consequent_ = BlockStatement(loc_=loc_, range_=range_, body_=body)
+        
+        loc_        = {"start": alternative[0].loc_["start"], "end": alternative[-1].loc_["end"]}
+        range_      = [alternative[0].range_[0], alternative[-1].range_[1]]
+        alternative = BlockStatement(loc_=loc_, range_=range_, body_=alternative)
+
+        loc_    = {"start": if_statement_start.loc_["start"], "end": alternative.loc_["end"]}
+        range_   = [if_statement_start.range_[0], alternative.range_[1]]
+        return IfStatement(loc_=loc_, range_=range_, test_=test, consequent_=consequent_, alternate_=alternative), tail
     
     loc_        = {"start": body[0].loc_["start"], "end": body[-1].loc_["end"]}
     range_      = [body[0].range_[0], body[-1].range_[1]]

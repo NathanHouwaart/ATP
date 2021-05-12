@@ -14,7 +14,7 @@ from misc.node_types import *
 from misc.token_types import TokenTypes, Token
 from misc.error_message import generate_error_message
 import parser_modules.parse_expression as parse_expr
-import parser_.parser_ as parser_
+import parser_ as parser_
 
 
 def parse_function_declaration(

@@ -75,7 +75,13 @@ class TestParser(unittest.TestCase):
         self.open_lex_parse_compare(code_samples_dir + "function_declarations/function_one_param.txt")
         self.open_lex_parse_compare(code_samples_dir + "function_declarations/function_multiple_param.txt")
 
-    
+    def test_if_statement(self):
+        self.open_lex_parse_compare(code_samples_dir + "if_statements\if_elif_elif_else_statement.txt")
+        self.open_lex_parse_compare(code_samples_dir + "if_statements\if_elif_else_statement.txt")
+        self.open_lex_parse_compare(code_samples_dir + "if_statements\if_else_tatement.txt")
+        self.open_lex_parse_compare(code_samples_dir + "if_statements\if_statement.txt")
+        
+        
 if __name__== "__main__":
     
     # test = TestParser()
