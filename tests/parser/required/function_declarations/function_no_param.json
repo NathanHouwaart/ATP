@@ -1,0 +1,33 @@
+{"Program":{
+    "loc_":{"start": {"line": 1, "index": 0}, "end": {"line": 3, "index": 2}},
+    "range_":[0, 25],
+    "body_":{
+        "FunctionDeclaration":{
+            "loc_":{"start": {"line": 1, "index": 0}, "end": {"line": 3, "index": 2}},
+            "range_":[0, 25],
+            "id_":"test",
+            "params_":{
+            },
+            "body_":{
+                "BlockStatement":{
+                    "loc_":{"start": {"line": 2, "index": 4}, "end": {"line": 2, "index": 9}},
+                    "range_":[16, 21],
+                    "body_":{
+                        "ReturnStatement":{
+                            "loc_":{"start": {"line": 2, "index": 4}, "end": {"line": 2, "index": 9}},
+                            "range_":[16, 21],
+                            "argument_":{
+                                "Literal":{
+                                    "loc_":{"start": {"line": 2, "index": 6}, "end": {"line": 2, "index": 7}},
+                                    "range_":[18, 19],
+                                    "value_":0,
+                                    "raw_":0
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}}

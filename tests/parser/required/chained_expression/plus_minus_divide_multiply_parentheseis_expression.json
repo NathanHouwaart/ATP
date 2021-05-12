@@ -1,0 +1,71 @@
+{"Program":{
+    "loc_":{"start": {"line": 1, "index": 0}, "end": {"line": 1, "index": 25}},
+    "range_":[0, 25],
+    "body_":{
+        "VariableDeclaration":{
+            "loc_":{"start": {"line": 1, "index": 0}, "end": {"line": 1, "index": 25}},
+            "range_":[0, 25],
+            "id_":"test",
+            "init_": {
+                "BinaryExpression":{
+                    "loc_":{"start": {"line": 1, "index": 9}, "end": {"line": 1, "index": 25}},
+                    "range_":[9, 25],
+                    "operator_":"TokenTypes.MULTIPLY",
+                    "left_":{
+                        "UnaryExpression":{
+                            "loc_":{"start": {"line": 1, "index": 9}, "end": {"line": 1, "index": 11}},
+                            "range_":[9, 11],
+                            "operator_":"TokenTypes.MINUS",
+                            "argument_": {
+                                "Literal":{
+                                    "loc_":{"start": {"line": 1, "index": 10}, "end": {"line": 1, "index": 11}},
+                                    "range_":[10, 11],
+                                    "value_":1,
+                                    "raw_":1
+                                }
+                            }
+                        }
+                    },
+                    "right_":{
+                        "BinaryExpression":{
+                            "loc_":{"start": {"line": 1, "index": 15}, "end": {"line": 1, "index": 25}},
+                            "range_":[15, 25],
+                            "operator_":"TokenTypes.DIVIDE",
+                            "left_":{
+                                "BinaryExpression":{
+                                    "loc_":{"start": {"line": 1, "index": 15}, "end": {"line": 1, "index": 20}},
+                                    "range_":[15, 20],
+                                    "operator_":"TokenTypes.PLUS",
+                                    "left_":{
+                                        "Literal":{
+                                            "loc_":{"start": {"line": 1, "index": 15}, "end": {"line": 1, "index": 16}},
+                                            "range_":[15, 16],
+                                            "value_":2,
+                                            "raw_":2
+                                        }
+                                    },
+                                    "right_":{
+                                        "Literal":{
+                                            "loc_":{"start": {"line": 1, "index": 19}, "end": {"line": 1, "index": 20}},
+                                            "range_":[19, 20],
+                                            "value_":3,
+                                            "raw_":3
+                                        }
+                                    }
+                                }
+                            },
+                            "right_":{
+                                "Literal":{
+                                    "loc_":{"start": {"line": 1, "index": 24}, "end": {"line": 1, "index": 25}},
+                                    "range_":[24, 25],
+                                    "value_":2,
+                                    "raw_":2
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}}

@@ -1,0 +1,19 @@
+{"Program":{
+    "loc_":{"start": {"line": 1, "index": 0}, "end": {"line": 1, "index": 7}},
+    "range_":[0, 7],
+    "body_":{
+        "CallExpression":{
+            "loc_":{"start": {"line": 1, "index": 0}, "end": {"line": 1, "index": 7}},
+            "range_":[0, 7],
+            "arguments_":{
+            },
+            "callee_":{
+                "Identifier":{
+                    "loc_":{"start": {"line": 1, "index": 2}, "end": {"line": 1, "index": 5}},
+                    "range_":[2, 5],
+                    "name_":"fib"
+                }
+            }
+        }
+    }
+}}

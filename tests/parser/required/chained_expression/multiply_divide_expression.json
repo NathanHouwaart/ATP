@@ -1,0 +1,86 @@
+{"Program":{
+    "loc_":{"start": {"line": 1, "index": 0}, "end": {"line": 2, "index": 0}},
+    "range_":[0, 29],
+    "body_":{
+        "VariableDeclaration":{
+            "loc_":{"start": {"line": 1, "index": 0}, "end": {"line": 1, "index": 27}},
+            "range_":[0, 27],
+            "id_":"test",
+            "init_": {
+                "BinaryExpression":{
+                    "loc_":{"start": {"line": 1, "index": 9}, "end": {"line": 1, "index": 27}},
+                    "range_":[9, 27],
+                    "operator_":"TokenTypes.DIVIDE",
+                    "left_":{
+                        "UnaryExpression":{
+                            "loc_":{"start": {"line": 1, "index": 9}, "end": {"line": 1, "index": 11}},
+                            "range_":[9, 11],
+                            "operator_":"TokenTypes.PLUS",
+                            "argument_": {
+                                "Literal":{
+                                    "loc_":{"start": {"line": 1, "index": 10}, "end": {"line": 1, "index": 11}},
+                                    "range_":[10, 11],
+                                    "value_":1,
+                                    "raw_":1
+                                }
+                            }
+                        }
+                    },
+                    "right_":{
+                        "BinaryExpression":{
+                            "loc_":{"start": {"line": 1, "index": 14}, "end": {"line": 1, "index": 27}},
+                            "range_":[14, 27],
+                            "operator_":"TokenTypes.MULTIPLY",
+                            "left_":{
+                                "Literal":{
+                                    "loc_":{"start": {"line": 1, "index": 14}, "end": {"line": 1, "index": 15}},
+                                    "range_":[14, 15],
+                                    "value_":2,
+                                    "raw_":2
+                                }
+                            },
+                            "right_":{
+                                "BinaryExpression":{
+                                    "loc_":{"start": {"line": 1, "index": 18}, "end": {"line": 1, "index": 27}},
+                                    "range_":[18, 27],
+                                    "operator_":"TokenTypes.DIVIDE",
+                                    "left_":{
+                                        "Literal":{
+                                            "loc_":{"start": {"line": 1, "index": 18}, "end": {"line": 1, "index": 19}},
+                                            "range_":[18, 19],
+                                            "value_":3,
+                                            "raw_":3
+                                        }
+                                    },
+                                    "right_":{
+                                        "BinaryExpression":{
+                                            "loc_":{"start": {"line": 1, "index": 22}, "end": {"line": 1, "index": 27}},
+                                            "range_":[22, 27],
+                                            "operator_":"TokenTypes.MULTIPLY",
+                                            "left_":{
+                                                "Literal":{
+                                                    "loc_":{"start": {"line": 1, "index": 22}, "end": {"line": 1, "index": 23}},
+                                                    "range_":[22, 23],
+                                                    "value_":2,
+                                                    "raw_":2
+                                                }
+                                            },
+                                            "right_":{
+                                                "Literal":{
+                                                    "loc_":{"start": {"line": 1, "index": 26}, "end": {"line": 1, "index": 27}},
+                                                    "range_":[26, 27],
+                                                    "value_":1,
+                                                    "raw_":1
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}}

@@ -1,0 +1,56 @@
+{"Program":{
+    "loc_":{"start": {"line": 1, "index": 0}, "end": {"line": 3, "index": 2}},
+    "range_":[0, 53],
+    "body_":{
+        "FunctionDeclaration":{
+            "loc_":{"start": {"line": 1, "index": 0}, "end": {"line": 3, "index": 2}},
+            "range_":[0, 53],
+            "id_":"test",
+            "params_":{
+                "Identifier":{
+                    "loc_":{"start": {"line": 1, "index": 11}, "end": {"line": 1, "index": 15}},
+                    "range_":[11, 15],
+                    "name_":"var1"
+                },
+                "Identifier":{
+                    "loc_":{"start": {"line": 1, "index": 20}, "end": {"line": 1, "index": 24}},
+                    "range_":[20, 24],
+                    "name_":"var2"
+                }
+            },
+            "body_":{
+                "BlockStatement":{
+                    "loc_":{"start": {"line": 2, "index": 4}, "end": {"line": 2, "index": 19}},
+                    "range_":[34, 49],
+                    "body_":{
+                        "ReturnStatement":{
+                            "loc_":{"start": {"line": 2, "index": 4}, "end": {"line": 2, "index": 19}},
+                            "range_":[34, 49],
+                            "argument_":{
+                                "BinaryExpression":{
+                                    "loc_":{"start": {"line": 2, "index": 6}, "end": {"line": 2, "index": 17}},
+                                    "range_":[36, 47],
+                                    "operator_":"TokenTypes.PLUS",
+                                    "left_":{
+                                        "Identifier":{
+                                            "loc_":{"start": {"line": 2, "index": 6}, "end": {"line": 2, "index": 10}},
+                                            "range_":[36, 40],
+                                            "name_":"var1"
+                                        }
+                                    },
+                                    "right_":{
+                                        "Identifier":{
+                                            "loc_":{"start": {"line": 2, "index": 13}, "end": {"line": 2, "index": 17}},
+                                            "range_":[43, 47],
+                                            "name_":"var2"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}}
