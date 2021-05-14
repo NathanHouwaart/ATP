@@ -20,55 +20,6 @@ try     : import parser_.parser_ as parser_
 except  : import parser_ as parser_
 import parser_modules.parse_expression as parse_expr
  
-def parse_binary_test(
-    characters: str, 
-    tokens: List['Token']
-) -> Tuple['BinaryExpression', List['Token']]:
-    """ Function tries to parse a binary test for an if statement
-    
-    Note: 
-        A binary expression must consist:
-            1. A left expression
-            2. An operator
-            3. A right expression
-    Args:
-        characters  : The characters that are being lexed, parsed, interpreted
-        tokens      : List of tokens that need to be parsed
-    
-    Returns:
-        If no errors occured:
-            - A BinaryExpression node 
-            - A list of tokens that still need to be parsed
-        If a grammar error occured:
-            - Raises a Syntax Error with a message of where the error occured
-    """
-    test, tokens = parse_expr.parse_expression(characters, tokens)
-    return test, tokens
-
-def parse_if_statement_loop(node, characters, tokens):
-    """
-    Functies tries to parse multiple if statement tests
-    
-    Note: 
-        The following grammar rules apply:
-            1. Two expressions must be separated by an TokenType.OR or TokenType.AND token
-
-    Args:
-        characters  : The characters that are being lexed, parsed, interpreted
-        tokens      : List of tokens that need to be parsed
-    
-    Returns:
-        If no errors occured:
-            - A BinaryExpression node 
-            - A list of tokens that still need to be parsed
-        If a grammar error occured:
-            - Raises a Syntax Error with a message of where the error occured
-    """
-    head, *tail = tokens
-    if head.tokentype_ in (TokenTypes.AND, TokenTypes.OR):
-        right, tokens = parse_binary_test(characters, tail)
-        node = BinaryExpression(loc_={}, range_=[], operator_=head.tokentype_, left_=node, right_=right)
-    return node, tokens
 
 def parse_if_statement_test(
     characters:str, 
@@ -94,8 +45,7 @@ def parse_if_statement_test(
         If a grammar error occured:
             - Raises a Syntax Error with a message of where the error occured
     """
-    node, tokens = parse_binary_test(characters, tokens)
-    node, tokens = parse_if_statement_loop(node, characters, tokens)
+    test, tokens = parse_expr.parse_expression(characters, tokens)
     
     head, *tail = tokens
     if head.tokentype_ != TokenTypes.INDENTATION:
@@ -104,7 +54,7 @@ def parse_if_statement_test(
     head, *tail = tail
     if head.tokentype_ != TokenTypes.NEW_LINE:
         generate_error_message(head, characters, "Expected new line after if statement", True)
-    return node, tail
+    return test, tail
 
 
 def trim_token_list(
@@ -152,22 +102,21 @@ def parse_if_statement(
         If a grammar error occured:
             - Raises a Syntax Error with a message of where the error occured
     """
-    if_statement_start, head, *tail = tokens
-    if head.tokentype_ == TokenTypes.INDENTATION:
-        return [], tail
-    test, tokens = parse_if_statement_test(characters, [head]+tail)
-    body, tokens = parser_.parse(characters, tokens, termination_tokens=[TokenTypes.IF_STATEMENT_END])
+    valid_termination_characters = [TokenTypes.IF_STATEMENT_END, TokenTypes.ELSE, TokenTypes.ELSE_IF]
+    if_statement_start, *tail = tokens # This works because the tokenlist always includes an EOF Token. 
+    test, tokens = parse_if_statement_test(characters, tail)
+    body, tokens = parser_.parse(characters, tokens, termination_tokens=valid_termination_characters)
     if_statement_end, *tail = tokens
     
-    if if_statement_end.tokentype_ != TokenTypes.IF_STATEMENT_END:
-        generate_error_message(if_statement_end, characters, "Expected '¿' after if statement end", True)
     if len(body) == 0:
         generate_error_message(if_statement_end, characters, "If statement body cannot be empty", True)
+    if if_statement_end.tokentype_ not in valid_termination_characters:
+        generate_error_message(if_statement_end, characters, "Expected '¿', '⁈', or '⁇' after if statement", True)
     
-    head, *tail = trim_token_list(tail, [TokenTypes.TAB, TokenTypes.NEW_LINE])
-
-    if head.tokentype_ == TokenTypes.ELSE_IF:
-        alternative, tokens = parse_if_statement(characters, [head]+tail)
+    # head, *tail = trim_token_list(tail, [TokenTypes.TAB, TokenTypes.NEW_LINE])
+    
+    if if_statement_end.tokentype_ == TokenTypes.ELSE_IF:
+        alternative, tokens = parse_if_statement(characters, tokens)
         
         loc_        = {"start": body[0].loc_["start"], "end": body[-1].loc_["end"]}
         range_      = [body[0].range_[0], body[-1].range_[1]]
@@ -176,7 +125,7 @@ def parse_if_statement(
         loc_    = {"start": if_statement_start.loc_["start"], "end": alternative.loc_["end"]}
         range_   = [if_statement_start.range_[0], alternative.range_[1]]
         return IfStatement(loc_=loc_, range_=range_, test_=test, consequent_=consequent_, alternate_=alternative), tokens
-    if head.tokentype_ == TokenTypes.ELSE:
+    if if_statement_end.tokentype_ == TokenTypes.ELSE:
         head, *tail = tail
         if head.tokentype_ != TokenTypes.INDENTATION:
             generate_error_message(head, characters, "Expected '––>' statement after else block", True)
@@ -206,4 +155,4 @@ def parse_if_statement(
 
     loc_    = {"start": if_statement_start.loc_["start"], "end": if_statement_end.loc_["end"]}
     range_   = [if_statement_start.range_[0], if_statement_end.range_[1]]
-    return IfStatement(loc_=loc_, range_=range_, test_=test, consequent_=consequent_, alternate_=[]), [head]+tail
+    return IfStatement(loc_=loc_, range_=range_, test_=test, consequent_=consequent_, alternate_=[]), tail

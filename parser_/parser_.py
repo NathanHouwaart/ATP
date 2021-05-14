@@ -79,5 +79,5 @@ if __name__ == "__main__":
     
     
     # print(str(program))
-    with open("pretty_printed.json", "w") as f:
-        f.write(program.pretty_print())
+    with open("C:\\Users\\Nathan\\Documents\\ATP\\pretty_printed.json", "wb") as f:
+        f.write(program.pretty_print().encode("utf-8"))

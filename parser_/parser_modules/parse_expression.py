@@ -60,9 +60,8 @@ def parse_operand(
         if head.tokentype_ != TokenTypes.RIGHT_PARENTHESIES:
             generate_error_message(head, characters, "Missing right parenthesies", True)
         return node, tail
-    
-    generate_error_message(head, characters, "Error parsing operand", True)
-    
+    generate_error_message(head, characters, "Expected expression, literal, or function call", True)
+
 
 def loop(
     characters: str,
