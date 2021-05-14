@@ -57,23 +57,6 @@ def parse_if_statement_test(
     return test, tail
 
 
-def trim_token_list(
-    tokens: List['Token'], 
-    trim: Tuple['TokenTypes']
-) -> list['Token']:
-    """ Function trims the provided token list by removing the instances found in trim untill another non included token is found
-    
-    Args:
-        tokens      : List of tokens that need to be trimmed
-        trim        : Trim these TokenTypes from the from of the list
-    Returns:
-        - A list containing the trimmed tokens
-    """
-    head, *tail = tokens
-    if head.tokentype_ not in trim:
-        return tokens
-    return trim_token_list(tail, trim)
-
 
 def parse_if_statement(
     characters: str, 
@@ -103,29 +86,27 @@ def parse_if_statement(
             - Raises a Syntax Error with a message of where the error occured
     """
     valid_termination_characters = [TokenTypes.IF_STATEMENT_END, TokenTypes.ELSE, TokenTypes.ELSE_IF]
-    if_statement_start, *tail = tokens # This works because the tokenlist always includes an EOF Token. 
+    if_statement_start, *tail = tokens
     test, tokens = parse_if_statement_test(characters, tail)
     body, tokens = parser_.parse(characters, tokens, termination_tokens=valid_termination_characters)
-    if_statement_end, *tail = tokens
+    termination_token, *tail = tokens
     
     if len(body) == 0:
-        generate_error_message(if_statement_end, characters, "If statement body cannot be empty", True)
-    if if_statement_end.tokentype_ not in valid_termination_characters:
-        generate_error_message(if_statement_end, characters, "Expected '¿', '⁈', or '⁇' after if statement", True)
-    
-    # head, *tail = trim_token_list(tail, [TokenTypes.TAB, TokenTypes.NEW_LINE])
-    
-    if if_statement_end.tokentype_ == TokenTypes.ELSE_IF:
-        alternative, tokens = parse_if_statement(characters, tokens)
+        generate_error_message(termination_token, characters, "If statement body cannot be empty", True)
+    if termination_token.tokentype_ not in valid_termination_characters:
+        generate_error_message(termination_token, characters, "Expected '¿', '⁈', or '⁇' after if statement", True)
         
+    if termination_token.tokentype_ == TokenTypes.ELSE_IF:
+        alternative, tokens = parse_if_statement(characters, tokens)
+
         loc_        = {"start": body[0].loc_["start"], "end": body[-1].loc_["end"]}
         range_      = [body[0].range_[0], body[-1].range_[1]]
         consequent_ = BlockStatement(loc_=loc_, range_=range_, body_=body)
 
-        loc_    = {"start": if_statement_start.loc_["start"], "end": alternative.loc_["end"]}
-        range_   = [if_statement_start.range_[0], alternative.range_[1]]
+        loc_    = {"start": alternative.loc_["start"], "end": alternative.loc_["end"]}
+        range_   = [alternative.range_[0], alternative.range_[1]]
         return IfStatement(loc_=loc_, range_=range_, test_=test, consequent_=consequent_, alternate_=alternative), tokens
-    if if_statement_end.tokentype_ == TokenTypes.ELSE:
+    if termination_token.tokentype_ == TokenTypes.ELSE:
         head, *tail = tail
         if head.tokentype_ != TokenTypes.INDENTATION:
             generate_error_message(head, characters, "Expected '––>' statement after else block", True)
@@ -153,6 +134,6 @@ def parse_if_statement(
     range_      = [body[0].range_[0], body[-1].range_[1]]
     consequent_ = BlockStatement(loc_=loc_, range_=range_, body_=body)
 
-    loc_    = {"start": if_statement_start.loc_["start"], "end": if_statement_end.loc_["end"]}
-    range_   = [if_statement_start.range_[0], if_statement_end.range_[1]]
+    loc_    = {"start": if_statement_start.loc_["start"], "end": termination_token.loc_["end"]}
+    range_   = [if_statement_start.range_[0], termination_token.range_[1]]
     return IfStatement(loc_=loc_, range_=range_, test_=test, consequent_=consequent_, alternate_=[]), tail
