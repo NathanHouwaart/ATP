@@ -42,16 +42,7 @@ def parse_binary_test(
         If a grammar error occured:
             - Raises a Syntax Error with a message of where the error occured
     """
-    head, *tail = tokens
-    if head.tokentype_ not in (TokenTypes.IDENTIFIER, TokenTypes.FLOAT, TokenTypes.INT):
-        generate_error_message(head, characters, "Expected identifier or literal in if statement", True)
-    
-    left, tokens = parse_expr.parse_expression(characters, tokens)
-    head, *tail = tokens
-    if head.tokentype_ not in (TokenTypes.GREATER_THAN, TokenTypes.SMALLER_THAN, TokenTypes.IS_EQUAL):
-        generate_error_message(head, characters, "Expected identifier or literal in if statement", True)
-    right, tokens = parse_expr.parse_expression(characters, tail)
-    test = BinaryExpression(loc_={}, range_=[], operator_=head.tokentype_, left_=left, right_=right)
+    test, tokens = parse_expr.parse_expression(characters, tokens)
     return test, tokens
 
 def parse_if_statement_loop(node, characters, tokens):

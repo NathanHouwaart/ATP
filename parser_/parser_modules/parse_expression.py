@@ -68,7 +68,8 @@ def loop(
     characters: str,
     left: 'Node', 
     tokens: str, 
-    token_types: List['TokenTypes']
+    token_types: List['TokenTypes'],
+    function
 ) -> Tuple['Node', List['Token']]:
     """Function tries to recursively parse a binary expression.
     Function recurses as long as the found 'operator' is in the provided token_types.
@@ -93,11 +94,11 @@ def loop(
     """
     head, *tail = tokens
     if head.tokentype_ in token_types:
-        right, tokens = parse_expression_mul_divide(characters, tail)
+        right, tokens = function(characters, tail)
         loc_ = {"start": left.loc_["start"], "end": right.loc_["end"]}
         range_   = [left.range_[0], right.range_[1]]
         node = BinaryExpression(loc_=loc_, range_=range_, operator_=head.tokentype_, left_=left, right_=right)
-        return loop(characters, node, tokens, token_types)
+        return loop(characters, node, tokens, token_types, function)
     return left, tokens
 
 
@@ -120,10 +121,10 @@ def parse_expression_mul_divide(
             Raises a Syntax Error with a message of where the error occured
     """
     node, tokens = parse_operand(characters, tokens)
-    node, tokens = loop(characters, node, tokens, (TokenTypes.MULTIPLY, TokenTypes.DIVIDE))
+    node, tokens = loop(characters, node, tokens, (TokenTypes.MULTIPLY, TokenTypes.DIVIDE), parse_expression_mul_divide)
     return node, tokens
 
-def parse_expression(
+def parse_expression_plus_minus(
     characters: str,
     tokens: List['Token']
 ) -> Tuple['Node', List['Token']]:
@@ -147,5 +148,60 @@ def parse_expression(
             Raises a Syntax Error with a message of where the error occured
     """
     expression, tokens = parse_expression_mul_divide(characters, tokens)
-    expression, tokens = loop(characters, expression, tokens, (TokenTypes.MINUS, TokenTypes.PLUS))
+    expression, tokens = loop(characters, expression, tokens, (TokenTypes.MINUS, TokenTypes.PLUS), parse_expression_plus_minus)
+    return expression, tokens
+
+def parse_expression_or_and(
+    characters: str,
+    tokens: List['Token'],
+) -> Tuple['None', List['Token']]:
+    """Function is used to parse an expression statement
+    
+    Note:
+        Expression follows basic math rules:
+            1. Parentesies and unary operators take most priority
+            2. Multiply and Divide take second most priority
+            3. Add and Subtract take least most priority
+        
+    Args:
+        characters          : Characters that are being lexed, parsed and interpreted
+        tokens              : Tokens that need to be parsed
+
+    Returns:
+        If no errors occured:
+            - A node containing the parsed expression
+            - The leftover tokens that stil need to be parsed
+        If a grammar error occured:
+            Raises a Syntax Error with a message of where the error occured
+    """
+    expression, tokens = parse_expression_plus_minus(characters, tokens)
+    expression, tokens = loop(characters, expression, tokens, (TokenTypes.GREATER_THAN, TokenTypes.IS_EQUAL, TokenTypes.SMALLER_THAN), parse_expression_or_and)
+    return expression, tokens
+
+
+def parse_expression(
+    characters: str,
+    tokens: List['Token'],
+) -> Tuple['None', List['Token']]:
+    """Function is used to parse an expression statement
+    
+    Note:
+        Expression follows basic math rules:
+            1. Parentesies and unary operators take most priority
+            2. Multiply and Divide take second most priority
+            3. Add and Subtract take least most priority
+        
+    Args:
+        characters          : Characters that are being lexed, parsed and interpreted
+        tokens              : Tokens that need to be parsed
+
+    Returns:
+        If no errors occured:
+            - A node containing the parsed expression
+            - The leftover tokens that stil need to be parsed
+        If a grammar error occured:
+            Raises a Syntax Error with a message of where the error occured
+    """
+    expression, tokens = parse_expression_or_and(characters, tokens)
+    expression, tokens = loop(characters, expression, tokens, (TokenTypes.OR, TokenTypes.AND), parse_expression)
     return expression, tokens
