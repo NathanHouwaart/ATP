@@ -1,0 +1,13 @@
+ƒ functie | α option | α var1 | α var2  ––>
+    ? option == 1 ––>
+        ⮐ var1 + var2 ⮐ ¿
+    ⁈ option == 2 ––>
+        ⮐ var1 - var2 ⮐ ¿
+    ⁈ option == 3 ––>
+        ⮐ var1 * var2 ⮐ ¿
+    ⁇ ––>
+        ⮐ var1 / var2 ⮐ ¿
+––
+
+📁 result = ✆ functie 4 | 12 | 23 ✆
+✆ 🖨 result ✆

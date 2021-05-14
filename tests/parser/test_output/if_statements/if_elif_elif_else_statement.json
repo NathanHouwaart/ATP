@@ -3,8 +3,8 @@
     "range_":[0, 128],
     "body_":{
         "IfStatement":{
-            "loc_":{"start": {"line": 1, "index": 0}, "end": {"line": 8, "index": 15}},
-            "range_":[0, 126],
+            "loc_":{"start": {"line": 1, "index": 0}, "end": {"line": 8, "index": 17}},
+            "range_":[0, 128],
             "test_":{
                 "BinaryExpression":{
                     "loc_":{},
@@ -50,8 +50,8 @@
             },
             "alternate_":{
                 "IfStatement":{
-                    "loc_":{"start": {"line": 3, "index": 0}, "end": {"line": 8, "index": 15}},
-                    "range_":[34, 126],
+                    "loc_":{"start": {"line": 3, "index": 0}, "end": {"line": 8, "index": 17}},
+                    "range_":[34, 128],
                     "test_":{
                         "BinaryExpression":{
                             "loc_":{},
@@ -97,8 +97,8 @@
                     },
                     "alternate_":{
                         "IfStatement":{
-                            "loc_":{"start": {"line": 5, "index": 0}, "end": {"line": 8, "index": 15}},
-                            "range_":[69, 126],
+                            "loc_":{"start": {"line": 5, "index": 0}, "end": {"line": 8, "index": 17}},
+                            "range_":[69, 128],
                             "test_":{
                                 "BinaryExpression":{
                                     "loc_":{},

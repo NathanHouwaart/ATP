@@ -12,7 +12,7 @@ sys.path.append(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from typing import *
+from typing import Tuple, Callable, Optional, Dict, List
 from misc.token_types import *
 from misc.node_types import *
 from lexer.lexer import lex, search_match
@@ -63,6 +63,9 @@ if __name__ == "__main__":
     # if len(sys.argv) < 2:
     #     print("No source file provided")
     #     exit()
+    print (os.getcwd())
+    os.chdir('..')
+    print (os.getcwd())
     
     with open("C:\\Users\\Nathan\\Documents\\ATP\\simple_language.py", 'rb') as f:
         code = f.read().decode("utf-8")

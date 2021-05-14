@@ -1,0 +1,74 @@
+{"Program":{
+    "loc_":{"start": {"line": 1, "index": 0}, "end": {"line": 4, "index": 17}},
+    "range_":[0, 58],
+    "body_":{
+        "IfStatement":{
+            "loc_":{"start": {"line": 1, "index": 0}, "end": {"line": 4, "index": 17}},
+            "range_":[0, 58],
+            "test_":{
+                "BinaryExpression":{
+                    "loc_":{},
+                    "range_":[],
+                    "operator_":"TokenTypes.SMALLER_THAN",
+                    "left_":{
+                        "Identifier":{
+                            "loc_":{"start": {"line": 1, "index": 2}, "end": {"line": 1, "index": 6}},
+                            "range_":[2, 6],
+                            "name_":"var1"
+                        }
+                    },
+                    "right_":{
+                        "Literal":{
+                            "loc_":{"start": {"line": 1, "index": 9}, "end": {"line": 1, "index": 10}},
+                            "range_":[9, 10],
+                            "value_":2,
+                            "raw_":2
+                        }
+                    }
+                }
+            },
+            "consequent_":{
+                "BlockStatement":{
+                    "loc_":{"start": {"line": 2, "index": 4}, "end": {"line": 2, "index": 14}},
+                    "range_":[20, 30],
+                    "body_":{
+                        "VariableDeclaration":{
+                            "loc_":{"start": {"line": 2, "index": 4}, "end": {"line": 2, "index": 14}},
+                            "range_":[20, 30],
+                            "id_":"var1",
+                            "init_": {
+                                "Literal":{
+                                    "loc_":{"start": {"line": 2, "index": 13}, "end": {"line": 2, "index": 14}},
+                                    "range_":[29, 30],
+                                    "value_":1,
+                                    "raw_":1
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "alternate_":{
+                "BlockStatement":{
+                    "loc_":{"start": {"line": 4, "index": 4}, "end": {"line": 4, "index": 15}},
+                    "range_":[45, 56],
+                    "body_":{
+                        "VariableDeclaration":{
+                            "loc_":{"start": {"line": 4, "index": 4}, "end": {"line": 4, "index": 15}},
+                            "range_":[45, 56],
+                            "id_":"var1",
+                            "init_": {
+                                "Literal":{
+                                    "loc_":{"start": {"line": 4, "index": 13}, "end": {"line": 4, "index": 15}},
+                                    "range_":[54, 56],
+                                    "value_":10,
+                                    "raw_":10
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}}

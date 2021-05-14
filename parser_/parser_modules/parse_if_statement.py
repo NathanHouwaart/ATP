@@ -15,7 +15,9 @@ from misc.node_types import *
 from misc.token_types import *
 from typing import Optional, List, Tuple
 from misc.error_message import generate_error_message
-import parser_ as parser
+
+try     : import parser_.parser_ as parser_
+except  : import parser_ as parser_
 import parser_modules.parse_expression as parse_expr
  
 def parse_binary_test(
@@ -163,9 +165,11 @@ def parse_if_statement(
     if head.tokentype_ == TokenTypes.INDENTATION:
         return [], tail
     test, tokens = parse_if_statement_test(characters, [head]+tail)
-    body, tokens = parser.parse(characters, tokens, termination_tokens=[TokenTypes.IF_STATEMENT_END])
+    body, tokens = parser_.parse(characters, tokens, termination_tokens=[TokenTypes.IF_STATEMENT_END])
     if_statement_end, *tail = tokens
     
+    if if_statement_end.tokentype_ != TokenTypes.IF_STATEMENT_END:
+        generate_error_message(if_statement_end, characters, "Expected '¿' after if statement end", True)
     if len(body) == 0:
         generate_error_message(if_statement_end, characters, "If statement body cannot be empty", True)
     
@@ -185,10 +189,10 @@ def parse_if_statement(
         head, *tail = tail
         if head.tokentype_ != TokenTypes.INDENTATION:
             generate_error_message(head, characters, "Expected '––>' statement after else block", True)
-        alternative, tokens = parser.parse(characters, tail, termination_tokens=[TokenTypes.IF_STATEMENT_END])
-        head, *tail = tokens
+        alternative, tokens = parser_.parse(characters, tail, termination_tokens=[TokenTypes.IF_STATEMENT_END])
+        if_statement_end, *tail = tokens
         
-        if head.tokentype_ != TokenTypes.IF_STATEMENT_END:
+        if if_statement_end.tokentype_ != TokenTypes.IF_STATEMENT_END:
             generate_error_message(if_statement_end, characters, "Expected '¿' after if statement end", True)
         if len(alternative) == 0:
             generate_error_message(if_statement_end, characters, "Else statement body cannot be empty", True)
@@ -201,8 +205,8 @@ def parse_if_statement(
         range_      = [alternative[0].range_[0], alternative[-1].range_[1]]
         alternative = BlockStatement(loc_=loc_, range_=range_, body_=alternative)
 
-        loc_    = {"start": if_statement_start.loc_["start"], "end": alternative.loc_["end"]}
-        range_   = [if_statement_start.range_[0], alternative.range_[1]]
+        loc_    = {"start": if_statement_start.loc_["start"], "end": if_statement_end.loc_["end"]}
+        range_   = [if_statement_start.range_[0], if_statement_end.range_[1]]
         return IfStatement(loc_=loc_, range_=range_, test_=test, consequent_=consequent_, alternate_=alternative), tail
     
     loc_        = {"start": body[0].loc_["start"], "end": body[-1].loc_["end"]}

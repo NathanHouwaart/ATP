@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import *
+from typing import Tuple, Callable, Optional, Dict, List, NamedTuple, Any
 import re
 
 class Token(NamedTuple):
@@ -57,8 +57,6 @@ TokenExpressions = [
     (r"\B––\B",                     TokenTypes.FUNCTION_DECLARATION_END),
     (r"\B📁\B",                     TokenTypes.VARIABLE_DECLARATION),
     (r"\bα\b",                      TokenTypes.PARAMETER),
-    (r"(⤷[ ])",                     TokenTypes.FUNCTION_LINE),
-    (r"(→[ ])",                     TokenTypes.CODE_LINE),
     (r"(\==)",                      TokenTypes.IS_EQUAL),
     (r"=",                          TokenTypes.IS),
     (r"(\+)",                       TokenTypes.PLUS),

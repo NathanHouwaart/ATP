@@ -1,4 +1,12 @@
-from typing import *
+"""
+@file node_types.py
+@author Nathan Houwaart (nathan.houwaart@student.hu.nl)
+@brief This file contains all parser node types
+@version 0.1
+@date 11-05-2021
+"""
+
+from typing import Optional, Dict, List
 from misc.token_types import *
 from dataclasses import dataclass
 import json
@@ -124,12 +132,6 @@ class IfStatement(Node):
         returnstring += (spaces+4)*" " + "}\n"
         returnstring += spaces*" " + "}"
         return returnstring
-
-
-@dataclass(frozen=True)
-class WhileStatement(Node):
-    test_: Node
-    body_: BlockStatement
 
 
 @dataclass(frozen=True)

@@ -20,17 +20,3 @@ def overload(arg_types=(), kwarg_types=()):
             return named_func[determine_types(args, kwargs)](*args, **kwargs)
         return call_function_by_signature
     return wrap
-
-
-if __name__ == "__main__":
-    @overload((str, int))
-    def f(a,b):
-        return a*b
-
-    @overload((int, int, int))
-    def f(a, b, c):
-        return a + b + c
-
-
-    print(f('a', 2))
-    print(f(4, 2, 1))

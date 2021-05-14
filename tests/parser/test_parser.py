@@ -3,6 +3,7 @@ import sys
 import os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append("C:/Users/Nathan/Documents/ATP/parser_")
 
 from lexer.lexer import lex, search_match
 from parser_.parser_ import parse
@@ -49,6 +50,9 @@ class TestParser(unittest.TestCase):
     def test_unary_expressions(self):
         self.open_lex_parse_compare(code_samples_dir + "unary_expression/unary_expression_identifier.txt")
         self.open_lex_parse_compare(code_samples_dir + "unary_expression/unary_expression_int.txt")
+        self.open_lex_parse_compare(code_samples_dir + "unary_expression/unary_expression_call_statement.txt")
+        
+        
     
     def test_simple_expressions(self):
         self.open_lex_parse_compare(code_samples_dir + "simple_expression/simple_divide_expression.txt")
@@ -64,6 +68,8 @@ class TestParser(unittest.TestCase):
         self.open_lex_parse_compare(code_samples_dir + "chained_expression/plus_minus_expression.txt")
         self.open_lex_parse_compare(code_samples_dir + "chained_expression/plus_minus_divide_multiply_expression.txt")
         self.open_lex_parse_compare(code_samples_dir + "chained_expression/plus_minus_divide_multiply_parentheseis_expression.txt")
+        self.open_lex_parse_compare(code_samples_dir + "chained_expression/plus_minus_divide_multiply_call_expression.txt")
+        self.open_lex_parse_compare(code_samples_dir + "chained_expression/plus_minus_divide_multiply_call_parenthesies_expression_.txt")
     
     def test_call_expression(self):
         self.open_lex_parse_compare(code_samples_dir + "call_expression/call_no_params.txt")

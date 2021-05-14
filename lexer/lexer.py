@@ -12,7 +12,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import re
 
-from typing import *
+from typing import Tuple, Callable, Optional
 from misc.token_types import *
 from misc.error_message import generate_error_message
 
