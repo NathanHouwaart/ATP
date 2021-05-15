@@ -113,7 +113,6 @@ def parse_function_params(
     return [param] + params, tokens
 
 
-parse_function_params
 def parse_return_statement(
     characters: str, 
     tokens: List['Token']

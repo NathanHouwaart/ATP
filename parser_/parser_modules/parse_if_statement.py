@@ -103,8 +103,8 @@ def parse_if_statement(
         range_      = [body[0].range_[0], body[-1].range_[1]]
         consequent_ = BlockStatement(loc_=loc_, range_=range_, body_=body)
 
-        loc_    = {"start": alternative.loc_["start"], "end": alternative.loc_["end"]}
-        range_   = [alternative.range_[0], alternative.range_[1]]
+        loc_    = {"start": if_statement_start.loc_["start"], "end": alternative.loc_["end"]}
+        range_   = [if_statement_start.range_[0], alternative.range_[1]]
         return IfStatement(loc_=loc_, range_=range_, test_=test, consequent_=consequent_, alternate_=alternative), tokens
     if termination_token.tokentype_ == TokenTypes.ELSE:
         head, *tail = tail
@@ -125,7 +125,6 @@ def parse_if_statement(
         loc_        = {"start": alternative[0].loc_["start"], "end": alternative[-1].loc_["end"]}
         range_      = [alternative[0].range_[0], alternative[-1].range_[1]]
         alternative = BlockStatement(loc_=loc_, range_=range_, body_=alternative)
-
         loc_    = {"start": if_statement_start.loc_["start"], "end": if_statement_end.loc_["end"]}
         range_   = [if_statement_start.range_[0], if_statement_end.range_[1]]
         return IfStatement(loc_=loc_, range_=range_, test_=test, consequent_=consequent_, alternate_=alternative), tail

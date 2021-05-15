@@ -74,9 +74,9 @@ def loop(
     Function recurses as long as the found 'operator' is in the provided token_types.
     
     Note:
-        Function does nothing when the 'operator' token is not present in the token_type list
-        In the expression 1+2, the 'operator' token is '+'
-        In the expression 1, the 'operator' token can by anything line "eof, new_line, space, etc"
+        - Function does nothing when the 'operator' token is not present in the token_type list
+        - In the expression 1+2, the 'operator' token is '+'
+        - In the expression 1, the 'operator' token can by anything line "eof, new_line, space, etc"
         
     Args:
         characters          : Characters that are being lexed, parsed and interpreted
