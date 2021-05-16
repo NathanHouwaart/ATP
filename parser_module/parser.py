@@ -15,13 +15,13 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from typing import Tuple, Callable, Optional, Dict, List
 from misc.token_types import *
 from misc.node_types import *
-from lexer.lexer import lex, search_match
+from lexer_module.lexer import lex, search_match
 from misc.error_message import generate_error_message
 
-import parser_modules.parse_variable_declaration as parse_var_decl
-import parser_modules.parse_function_declaration as parse_func_decl
-import parser_modules.parse_if_statement         as parse_if_stmt
-import parser_modules.parse_function_call        as parse_func_call
+import parser_submodules.parse_variable_declaration as parse_var_decl
+import parser_submodules.parse_function_declaration as parse_func_decl
+import parser_submodules.parse_if_statement         as parse_if_stmt
+import parser_submodules.parse_function_call        as parse_func_call
 
 def parse(
     characters: str, 

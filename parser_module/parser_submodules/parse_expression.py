@@ -13,7 +13,7 @@ from misc.token_types import TokenTypes, Token
 from misc.error_message import generate_error_message
 from typing import Optional, List, Tuple
 
-import parser_modules.parse_function_call as pass_func
+import parser_submodules.parse_function_call as pass_func
 
 def parse_operand(
     characters : str,

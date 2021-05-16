@@ -9,7 +9,7 @@ import sys
 import os
 import typing
 
-import parser_modules.parse_expression as parse_expr
+import parser_submodules.parse_expression as parse_expr
 from misc.token_types import *
 from typing import Optional, TypeVar, Callable, List, Tuple
 from misc.error_message import generate_error_message

@@ -5,8 +5,8 @@ import time
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from typing import Tuple, Callable, Optional, Dict, List
-from lexer.lexer import lex, search_match
-from parser_.parser_ import parse
+from lexer_module.lexer import lex, search_match
+from parser_module.parser import parse
 from misc.token_types import *
 from misc.node_types import *
 from misc.error_message import generate_error_message

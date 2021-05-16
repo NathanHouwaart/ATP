@@ -10,7 +10,6 @@ import unittest
 
 
 if __name__ == "__main__":
-    
     lexer       = unittest.TestLoader().loadTestsFromModule(test_lexer)
     parser      = unittest.TestLoader().loadTestsFromModule(test_parser)
     interpreter = unittest.TestLoader().loadTestsFromModule(test_interpreter)

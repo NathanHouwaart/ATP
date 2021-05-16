@@ -5,17 +5,12 @@
 @version 0.1
 @date 11-05-2021
 """
-import sys
-import os
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from misc.node_types import *
 from misc.token_types import TokenTypes, Token
 from typing import Optional, List, Tuple
 from misc.error_message import generate_error_message
 
-import parser_modules.parse_expression as parse_expr
+import parser_submodules.parse_expression as parse_expr
 
 def parse_function_call_parameters_loop(
     characters: str,

@@ -16,9 +16,9 @@ from misc.token_types import *
 from typing import Optional, List, Tuple
 from misc.error_message import generate_error_message
 
-try     : import parser_.parser_ as parser_
-except  : import parser_ as parser_
-import parser_modules.parse_expression as parse_expr
+try     : import parser_module.parser as parser
+except  : import parser as parser_
+import parser_submodules.parse_expression as parse_expr
  
 
 def parse_if_statement_test(
@@ -88,7 +88,7 @@ def parse_if_statement(
     valid_termination_characters = [TokenTypes.IF_STATEMENT_END, TokenTypes.ELSE, TokenTypes.ELSE_IF]
     if_statement_start, *tail = tokens
     test, tokens = parse_if_statement_test(characters, tail)
-    body, tokens = parser_.parse(characters, tokens, termination_tokens=valid_termination_characters)
+    body, tokens = parser.parse(characters, tokens, termination_tokens=valid_termination_characters)
     termination_token, *tail = tokens
     
     if len(body) == 0:
@@ -110,7 +110,7 @@ def parse_if_statement(
         head, *tail = tail
         if head.tokentype_ != TokenTypes.INDENTATION:
             generate_error_message(head, characters, "Expected '––>' statement after else block", True)
-        alternative, tokens = parser_.parse(characters, tail, termination_tokens=[TokenTypes.IF_STATEMENT_END])
+        alternative, tokens = parser.parse(characters, tail, termination_tokens=[TokenTypes.IF_STATEMENT_END])
         if_statement_end, *tail = tokens
         
         if if_statement_end.tokentype_ != TokenTypes.IF_STATEMENT_END:

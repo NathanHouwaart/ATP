@@ -6,16 +6,13 @@
 @date 11-05-2021
 """
 
-import sys
-import os
-
 from typing import Optional, List, Tuple
 from misc.node_types import *
 from misc.token_types import TokenTypes, Token
 from misc.error_message import generate_error_message
-import parser_modules.parse_expression as parse_expr
-try     : import parser_.parser_ as parser_
-except  : import parser_ as parser_
+import parser_submodules.parse_expression as parse_expr
+try     : import parser_module.parser as parser
+except  : import parser as parser
 
 
 def parse_function_declaration(
@@ -47,7 +44,7 @@ def parse_function_declaration(
         generate_error_message(identifier, characters, "Expected identifier after function declaration", True)
     
     function_parameters, tokens = parse_function_params(characters, tail)
-    function_body, tokens       = parser_.parse(characters, tokens, termination_tokens=[TokenTypes.FUNCTION_DECLARATION_END])
+    function_body, tokens       = parser.parse(characters, tokens, termination_tokens=[TokenTypes.FUNCTION_DECLARATION_END])
     function_declaration_end, *tail = tokens
     
     if len(function_body) == 0:
