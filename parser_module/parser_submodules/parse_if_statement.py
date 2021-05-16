@@ -5,12 +5,6 @@
 @version 0.1
 @date 11-05-2021
 """
-import sys
-import os
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-# print(sys.modules.keys())
-
 from misc.node_types import *
 from misc.token_types import *
 from typing import Optional, List, Tuple

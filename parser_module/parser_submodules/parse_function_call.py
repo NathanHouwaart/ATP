@@ -16,6 +16,25 @@ def parse_function_call_parameters_loop(
     characters: str,
     tokens : List[Token]
 ) -> Tuple[List['Node'], List['Token']]:
+    """Function is used to parse the parameters when parsing a function call
+    
+    Note: 
+        Follows the following grammar rules:
+            1. A function call statement starts with a TokenType.CALL and 
+                ends with a TokenType.CALL
+            2. A function call parameter must be separated by a '|'
+    
+    Args:
+        characters  : The characters that are being lexed, parsed, interpreted
+        tokens      : List of tokens that need to be parsed
+    
+    Returns:
+        If no errors occured:
+            - A list of nodes representing the parameters 
+            - A list of tokens that still need to be parsed
+        If a grammar error occured:
+            - Raises a Syntax Error with a message of where the error occured
+    """
     node, tokens = parse_expr.parse_expression(characters, tokens)
     head, *tail = tokens
     if head.tokentype_ == TokenTypes.CALL: 

@@ -1,3 +1,11 @@
+"""
+@file main.py
+@author Nathan Houwaart (nathan.houwaart@student.hu.nl)
+@brief This file is used to lex, parse and interpret a file containing the alt-f4 programming language
+@version 1.0
+@date 16-05-2021
+"""
+
 import sys
 import os
 import time
@@ -20,7 +28,7 @@ if __name__ == "__main__":
 
     tokens = lex(code, search_match, TokenExpressions)
     tokens = list(filter(lambda token: token.tokentype_ != TokenTypes.NONE, tokens))
-    
+
     parsed, leftover_token = parse(code, tokens)
     program = Program(loc_={'start': {'line': 1, 'index': 0}, "end":{"line":tokens[-1].loc_["start"]["line"], "index":tokens[-1].loc_["start"]["index"]}}, range_=[0, len(code)], body_=parsed)
 

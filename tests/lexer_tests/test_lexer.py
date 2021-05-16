@@ -1,3 +1,11 @@
+"""
+@file test_lexer.py
+@author Nathan Houwaart (nathan.houwaart@student.hu.nl)
+@brief This file contains tests to test the lexer of the alt-f4 programming language
+@version 1.0
+@date 16-05-2021
+"""
+
 import unittest
 import sys
 import os
@@ -5,14 +13,13 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from lexer.lexer import lex, search_match
+from lexer_module.lexer import lex, search_match
 from misc.token_types import *
 
 code_samples = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 class TestLexer(unittest.TestCase):
 
-        
     def lex_and_compare_required_vs_output(self, file_path, required_token_order):
         with open(file_path, 'rb') as f:
             code = f.read().decode("utf-8")
@@ -82,7 +89,6 @@ class TestLexer(unittest.TestCase):
             TokenTypes.NEW_LINE, TokenTypes.TAB, TokenTypes.RETURN, TokenTypes.INT, TokenTypes.PLUS,
             TokenTypes.IDENTIFIER, TokenTypes.NEW_LINE, TokenTypes.FUNCTION_DECLARATION_END
         ]
-
         self.lex_and_compare_required_vs_output(code_samples + "/code_samples/valid/function_declaration_without_parameters.txt", token_order_function_declaratrion_without_parameters)
         self.lex_and_compare_required_vs_output(code_samples + "/code_samples/valid/function_declaration_with_parameters.txt", token_order_function_declaratrion_with_parameters)
         self.lex_and_compare_required_vs_output(code_samples + "/code_samples/valid/function_declaration_with_body.txt", token_order_function_with_body)
@@ -109,8 +115,8 @@ class TestLexer(unittest.TestCase):
             TokenTypes.INT, TokenTypes.CALL, TokenTypes.RIGHT_PARENTHESIES
         ]
         self.lex_and_compare_required_vs_output(code_samples + "/code_samples/valid/function_call.txt", token_order_function_call)
-        
-    
+
+
     def test_invalid_variable_declaration(self):
         try: 
             self.lex_and_compare_required_vs_output(code_samples +"/code_samples/invalid/invalid_identifier.txt", None)
@@ -118,8 +124,8 @@ class TestLexer(unittest.TestCase):
             self.assertIn("Invalid Syntax\nFile <placeholder>, line 1\n\t📁 02var1 = 12\n\t   ^^^^", str(e))
             return
         self.fail()
-    
-    
+
+
     def test_invalid_identifier(self):
         try: 
             self.lex_and_compare_required_vs_output(code_samples + "/code_samples/invalid/invalid_variable_declaration.txt", None)
@@ -128,7 +134,7 @@ class TestLexer(unittest.TestCase):
             return
         self.fail()
 
-    
+
     def test_invalid_syntax(self):
         try:
             self.lex_and_compare_required_vs_output(code_samples + "/code_samples/invalid/unknown_syntax.txt", None)
@@ -139,6 +145,4 @@ class TestLexer(unittest.TestCase):
 
 
 if __name__== "__main__":
-    # print()
-    # exit()
     unittest.main(verbosity=2)

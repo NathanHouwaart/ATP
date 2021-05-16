@@ -5,9 +5,6 @@
 @version 0.1
 @date 11-05-2021
 """
-import sys
-import os
-
 from misc.node_types import *
 from misc.token_types import TokenTypes, Token
 from misc.error_message import generate_error_message
@@ -127,14 +124,9 @@ def parse_expression_plus_minus(
     characters: str,
     tokens: List['Token']
 ) -> Tuple['Node', List['Token']]:
-    """Function is used to parse an expression statement
-    
-    Note:
-        Expression follows basic math rules:
-            1. Parentesies and unary operators take most priority
-            2. Multiply and Divide take second most priority
-            3. Add and Subtract take least most priority
-        
+    """Function tries parse a multiply and divide expression node and then looks recursively 
+    for plus and minus tokens to create a binary expression
+           
     Args:
         characters          : Characters that are being lexed, parsed and interpreted
         tokens              : Tokens that need to be parsed
@@ -154,14 +146,9 @@ def parse_expression_or_and(
     characters: str,
     tokens: List['Token'],
 ) -> Tuple['None', List['Token']]:
-    """Function is used to parse an expression statement
-    
-    Note:
-        Expression follows basic math rules:
-            1. Parentesies and unary operators take most priority
-            2. Multiply and Divide take second most priority
-            3. Add and Subtract take least most priority
-        
+    """Function tries parse a plus and minus expression node and then looks recursively 
+    for greater than, is equal and smaller than tokens to create a binary expression
+           
     Args:
         characters          : Characters that are being lexed, parsed and interpreted
         tokens              : Tokens that need to be parsed
@@ -181,14 +168,16 @@ def parse_expression_or_and(
 def parse_expression(
     characters: str,
     tokens: List['Token'],
-) -> Tuple['None', List['Token']]:
+) -> Tuple['Node', List['Token']]:
     """Function is used to parse an expression statement
     
     Note:
         Expression follows basic math rules:
-            1. Parentesies and unary operators take most priority
+            1. Parentesies, call expressions, literals and unary operators take most priority
             2. Multiply and Divide take second most priority
-            3. Add and Subtract take least most priority
+            3. Add and Subtract take third most priority
+            4. Greater than, is equal or smaller than take fourth most priiority
+            5. Or and And take least most priority
         
     Args:
         characters          : Characters that are being lexed, parsed and interpreted

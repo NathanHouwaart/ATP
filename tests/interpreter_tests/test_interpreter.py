@@ -1,13 +1,19 @@
+"""
+@file test_interpreter.py
+@author Nathan Houwaart (nathan.houwaart@student.hu.nl)
+@brief This file contains tests to test the interpreter of the alt-f4 programming language
+@version 1.0
+@date 16-05-2021
+"""
+
 import unittest
 import sys
 import os
-import inspect
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-sys.path.append("C:/Users/Nathan/Documents/ATP/parser_")
 
-from lexer.lexer import lex, search_match
-from parser_.parser_ import parse
+from lexer_module.lexer import lex, search_match
+from parser_module.parser import parse
 from interpreter_module.interpreter import interpret
 from misc.token_types import *
 from misc.node_types import Program
@@ -37,26 +43,26 @@ class TestInterpreter(unittest.TestCase):
         required_file      = folder_required + "/" + filename + ".txt"
         
         if not os.path.exists(folder_output): os.makedirs(folder_output)
-        
-        
+
         with open(output_file, "wb") as f:
             f.write(str(result).encode("utf-8"))
         self.compare_files(required_file, output_file)
-        
-    
+
+
     def compare_files(self, required, test):
         with open(required, "r") as f:
             required_output = f.read()
-        
         with open(test, "r") as f:
             test_output = f.read()
         self.assertEqual(required_output, test_output)
-        
+
+
     def test_unary_expressions(self):
         self.open_lex_parse_interpret_compare(code_samples_dir + "unary_expression/unary_expression_identifier.txt")
         self.open_lex_parse_interpret_compare(code_samples_dir + "unary_expression/unary_expression_int.txt")
         self.open_lex_parse_interpret_compare(code_samples_dir + "unary_expression/unary_expression_call_statement.txt")
-        
+
+
     def test_simple_expressions(self):
         self.open_lex_parse_interpret_compare(code_samples_dir + "simple_expression/simple_divide_expression.txt")
         self.open_lex_parse_interpret_compare(code_samples_dir + "simple_expression/simple_minus_expression.txt")
@@ -65,7 +71,8 @@ class TestInterpreter(unittest.TestCase):
         self.open_lex_parse_interpret_compare(code_samples_dir + "simple_expression/call_expression_one_param.txt")
         self.open_lex_parse_interpret_compare(code_samples_dir + "simple_expression/call_expression_no_param.txt")
         self.open_lex_parse_interpret_compare(code_samples_dir + "simple_expression/call_expression_multiple_param.txt")
-    
+
+
     def test_if_statements(self):
         self.open_lex_parse_interpret_compare(code_samples_dir + "if_statements/if_elif_elif_else_statement.txt")
         self.open_lex_parse_interpret_compare(code_samples_dir + "if_statements/if_elif_else_statement.txt")
@@ -73,12 +80,14 @@ class TestInterpreter(unittest.TestCase):
         self.open_lex_parse_interpret_compare(code_samples_dir + "if_statements/if_statement_function_call.txt")
         self.open_lex_parse_interpret_compare(code_samples_dir + "if_statements/if_statement_two_expressions_and.txt")
         self.open_lex_parse_interpret_compare(code_samples_dir + "if_statements/if_statement_two_expressions_or.txt")
-        
+
+
     def test_function_declarations(self):
         self.open_lex_parse_interpret_compare(code_samples_dir + "function_declarations/function_multiple_param.txt")
         self.open_lex_parse_interpret_compare(code_samples_dir + "function_declarations/function_no_param.txt")
         self.open_lex_parse_interpret_compare(code_samples_dir + "function_declarations/function_one_param.txt")
-    
+
+
     def test_chained_expressions(self):
         self.open_lex_parse_interpret_compare(code_samples_dir + "chained_expression/multiply_divide_expression.txt")
         self.open_lex_parse_interpret_compare(code_samples_dir + "chained_expression/plus_minus_divide_multiply_call_expression.txt")
@@ -86,12 +95,11 @@ class TestInterpreter(unittest.TestCase):
         self.open_lex_parse_interpret_compare(code_samples_dir + "chained_expression/plus_minus_divide_multiply_expression.txt")
         self.open_lex_parse_interpret_compare(code_samples_dir + "chained_expression/plus_minus_divide_multiply_parentheseis_expression.txt")
         self.open_lex_parse_interpret_compare(code_samples_dir + "chained_expression/plus_minus_expression.txt")
-        
+
+
     def test_program(self):
         self.open_lex_parse_interpret_compare(code_samples_dir + "program/double_recursive.txt")
         self.open_lex_parse_interpret_compare(code_samples_dir + "program/fibonachi.txt")
-        
-
 
 
 if __name__ == '__main__':

@@ -139,7 +139,7 @@ if __name__ == '__main__':
     program = Program(loc_={'start': {'line': 1, 'index': 0}, "end":{"line":tokens[-1].loc_["start"]["line"], "index":tokens[-1].loc_["start"]["index"]}}, range_=[0, len(code)], body_=parsed)
     
     with open("output.json", "wb") as f:
-        f.write(program.pretty_print().encode("utf-8"))
+        f.write(program.jsonify().encode("utf-8"))
     
     time_start = time.time()
     result = interpret(code, program)
