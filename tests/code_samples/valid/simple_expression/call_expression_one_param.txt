@@ -1,1 +1,5 @@
-📁 test = ✆ fib param1 ✆
+ƒ some_func | α var1––>
+    ⮐ var1 * -1 ⮐
+––
+
+📁 test = ✆ some_func 12 ✆

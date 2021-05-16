@@ -106,7 +106,7 @@ def parse_if_statement(
         loc_    = {"start": if_statement_start.loc_["start"], "end": alternative.loc_["end"]}
         range_   = [if_statement_start.range_[0], alternative.range_[1]]
         return IfStatement(loc_=loc_, range_=range_, test_=test, consequent_=consequent_, alternate_=alternative), tokens
-    if termination_token.tokentype_ == TokenTypes.ELSE:
+    elif termination_token.tokentype_ == TokenTypes.ELSE:
         head, *tail = tail
         if head.tokentype_ != TokenTypes.INDENTATION:
             generate_error_message(head, characters, "Expected '––>' statement after else block", True)

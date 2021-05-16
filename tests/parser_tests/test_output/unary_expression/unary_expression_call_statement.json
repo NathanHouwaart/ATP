@@ -1,0 +1,60 @@
+{"Program":{
+    "loc_":{"start": {"line": 1, "index": 0}, "end": {"line": 5, "index": 20}},
+    "range_":[0, 52],
+    "body_":{
+        "FunctionDeclaration":{
+            "loc_":{"start": {"line": 1, "index": 0}, "end": {"line": 3, "index": 2}},
+            "range_":[0, 28],
+            "id_":"number",
+            "params_":{
+            },
+            "body_":{
+                "BlockStatement":{
+                    "loc_":{"start": {"line": 2, "index": 4}, "end": {"line": 2, "index": 10}},
+                    "range_":[18, 24],
+                    "body_":{
+                        "ReturnStatement":{
+                            "loc_":{"start": {"line": 2, "index": 4}, "end": {"line": 2, "index": 10}},
+                            "range_":[18, 24],
+                            "argument_":{
+                                "Literal":{
+                                    "loc_":{"start": {"line": 2, "index": 6}, "end": {"line": 2, "index": 8}},
+                                    "range_":[20, 22],
+                                    "value_":12,
+                                    "raw_":12
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "VariableDeclaration":{
+            "loc_":{"start": {"line": 5, "index": 0}, "end": {"line": 5, "index": 20}},
+            "range_":[32, 52],
+            "id_":"test",
+            "init_": {
+                "UnaryExpression":{
+                    "loc_":{"start": {"line": 5, "index": 9}, "end": {"line": 5, "index": 20}},
+                    "range_":[41, 52],
+                    "operator_":"TokenTypes.MINUS",
+                    "argument_": {
+                        "CallExpression":{
+                            "loc_":{"start": {"line": 5, "index": 10}, "end": {"line": 5, "index": 20}},
+                            "range_":[42, 52],
+                            "arguments_":{
+                            },
+                            "callee_":{
+                                "Identifier":{
+                                    "loc_":{"start": {"line": 5, "index": 12}, "end": {"line": 5, "index": 18}},
+                                    "range_":[44, 50],
+                                    "name_":"number"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}}

@@ -1,0 +1,85 @@
+{"Program":{
+    "loc_":{"start": {"line": 1, "index": 0}, "end": {"line": 5, "index": 25}},
+    "range_":[0, 75],
+    "body_":{
+        "FunctionDeclaration":{
+            "loc_":{"start": {"line": 1, "index": 0}, "end": {"line": 3, "index": 2}},
+            "range_":[0, 46],
+            "id_":"some_func",
+            "params_":{
+                "Identifier":{
+                    "loc_":{"start": {"line": 1, "index": 16}, "end": {"line": 1, "index": 20}},
+                    "range_":[16, 20],
+                    "name_":"var1"
+                }
+            },
+            "body_":{
+                "BlockStatement":{
+                    "loc_":{"start": {"line": 2, "index": 4}, "end": {"line": 2, "index": 17}},
+                    "range_":[29, 42],
+                    "body_":{
+                        "ReturnStatement":{
+                            "loc_":{"start": {"line": 2, "index": 4}, "end": {"line": 2, "index": 17}},
+                            "range_":[29, 42],
+                            "argument_":{
+                                "BinaryExpression":{
+                                    "loc_":{"start": {"line": 2, "index": 6}, "end": {"line": 2, "index": 15}},
+                                    "range_":[31, 40],
+                                    "operator_":"TokenTypes.MULTIPLY",
+                                    "left_":{
+                                        "Identifier":{
+                                            "loc_":{"start": {"line": 2, "index": 6}, "end": {"line": 2, "index": 10}},
+                                            "range_":[31, 35],
+                                            "name_":"var1"
+                                        }
+                                    },
+                                    "right_":{
+                                        "UnaryExpression":{
+                                            "loc_":{"start": {"line": 2, "index": 13}, "end": {"line": 2, "index": 15}},
+                                            "range_":[38, 40],
+                                            "operator_":"TokenTypes.MINUS",
+                                            "argument_": {
+                                                "Literal":{
+                                                    "loc_":{"start": {"line": 2, "index": 14}, "end": {"line": 2, "index": 15}},
+                                                    "range_":[39, 40],
+                                                    "value_":1,
+                                                    "raw_":1
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "VariableDeclaration":{
+            "loc_":{"start": {"line": 5, "index": 0}, "end": {"line": 5, "index": 25}},
+            "range_":[50, 75],
+            "id_":"test",
+            "init_": {
+                "CallExpression":{
+                    "loc_":{"start": {"line": 5, "index": 9}, "end": {"line": 5, "index": 25}},
+                    "range_":[59, 75],
+                    "arguments_":{
+                        "Literal":{
+                            "loc_":{"start": {"line": 5, "index": 21}, "end": {"line": 5, "index": 23}},
+                            "range_":[71, 73],
+                            "value_":12,
+                            "raw_":12
+                        }
+                    },
+                    "callee_":{
+                        "Identifier":{
+                            "loc_":{"start": {"line": 5, "index": 11}, "end": {"line": 5, "index": 20}},
+                            "range_":[61, 70],
+                            "name_":"some_func"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}}

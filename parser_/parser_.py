@@ -67,7 +67,7 @@ if __name__ == "__main__":
     os.chdir('..')
     print (os.getcwd())
     
-    with open("C:\\Users\\Nathan\\Documents\\ATP\\simple_language.py", 'rb') as f:
+    with open("C:\\Users\\Nathan\\Documents\\ATP\\tests\\code_samples\\valid\\chained_expression\\multiply_divide_expression.txt", 'rb') as f:
         code = f.read().decode("utf-8")
     
     lexed = lex(code, search_match, TokenExpressions)

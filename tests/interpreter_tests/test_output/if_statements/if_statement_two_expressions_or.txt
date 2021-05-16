@@ -1,0 +1,1 @@
+SymbolTable(symbols={'🖨': <built-in function print>, 'var1': 20, 'var2': 10, 'var3': 42}, parent=None, return_symbols=[], return_stop=False)

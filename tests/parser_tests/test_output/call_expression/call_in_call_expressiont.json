@@ -1,0 +1,42 @@
+{"Program":{
+    "loc_":{"start": {"line": 1, "index": 0}, "end": {"line": 1, "index": 35}},
+    "range_":[0, 35],
+    "body_":{
+        "CallExpression":{
+            "loc_":{"start": {"line": 1, "index": 0}, "end": {"line": 1, "index": 35}},
+            "range_":[0, 35],
+            "arguments_":{
+                "Identifier":{
+                    "loc_":{"start": {"line": 1, "index": 6}, "end": {"line": 1, "index": 12}},
+                    "range_":[6, 12],
+                    "name_":"param1"
+                },
+                "CallExpression":{
+                    "loc_":{"start": {"line": 1, "index": 15}, "end": {"line": 1, "index": 24}},
+                    "range_":[15, 24],
+                    "arguments_":{
+                    },
+                    "callee_":{
+                        "Identifier":{
+                            "loc_":{"start": {"line": 1, "index": 17}, "end": {"line": 1, "index": 22}},
+                            "range_":[17, 22],
+                            "name_":"other"
+                        }
+                    }
+                },
+                "Identifier":{
+                    "loc_":{"start": {"line": 1, "index": 27}, "end": {"line": 1, "index": 33}},
+                    "range_":[27, 33],
+                    "name_":"param3"
+                }
+            },
+            "callee_":{
+                "Identifier":{
+                    "loc_":{"start": {"line": 1, "index": 2}, "end": {"line": 1, "index": 5}},
+                    "range_":[2, 5],
+                    "name_":"fib"
+                }
+            }
+        }
+    }
+}}

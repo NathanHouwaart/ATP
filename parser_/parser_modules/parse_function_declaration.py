@@ -135,8 +135,6 @@ def parse_return_statement(
             - Raises a Syntax Error with a message of where the error occured
     """
     return_statement_start, head, *tail = tokens
-    if head.tokentype_ not in (TokenTypes.CALL,TokenTypes.IDENTIFIER, TokenTypes.MINUS, TokenTypes.PLUS, TokenTypes.INT, TokenTypes.FLOAT, TokenTypes.LEFT_PARENTHESIES):
-        generate_error_message(head, characters, "Expected expression after 'return' statement", True)
     
     node, tokens = parse_expr.parse_expression(characters, [head]+tail)
     

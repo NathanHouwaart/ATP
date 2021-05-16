@@ -55,9 +55,6 @@ def parse_variable_declaration(
         return generate_error_message(head, characters, "Expected '='", True)
 
     head, *tail = tail
-    if head.tokentype_ not in (TokenTypes.CALL, TokenTypes.IDENTIFIER, TokenTypes.MINUS, TokenTypes.PLUS, TokenTypes.INT, TokenTypes.FLOAT, TokenTypes.LEFT_PARENTHESIES):
-        return generate_error_message(head, characters, "Expected expression after '=' statement", True)
-    
     node, tokens = parse_expr.parse_expression(characters, [head] + tail)
 
     loc_ = {"start": variable_declaration.loc_["start"], "end": node.loc_["end"]}

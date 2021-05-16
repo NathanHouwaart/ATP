@@ -53,6 +53,8 @@ def interpret_BinaryExpression(code: str, node: BinaryExpression, symbol_table: 
     elif operator == TokenTypes.IS_EQUAL      : result = left == right
     elif operator == TokenTypes.GREATER_THAN  : result = left > right
     elif operator == TokenTypes.SMALLER_THAN  : result = left < right
+    elif operator == TokenTypes.AND            : result = left and right
+    elif operator == TokenTypes.OR           : result = left or right
     
     return symbol_table_add_return_symbol(symbol_table, result)
 
@@ -84,9 +86,9 @@ def get_attribute(method_name, default):
 def interpret_UnaryExpression(code: str, node: Node, symbol_table: SymbolTable):
     symbol_table            = interpret_loop(code, [node.argument_], symbol_table)
     number, symbol_table    = symbol_table_get_and_del_return_symbol(symbol_table)
-
+    number = number[0]
     if node.operator_ == TokenTypes.MINUS:
-        number = number[0] * -1
+        number = number * -1
     return symbol_table_add_return_symbol(symbol_table, number)
 
 def interpret_ReturnStatement(code: str, node: ReturnStatement, symbol_table: SymbolTable):
@@ -118,12 +120,16 @@ def interpret(code, program: Program):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print("Expected filename")
-        exit()
+    # if len(sys.argv) < 2:
+    #     print("Expected filename")
+    #     exit()
 
-    with open(sys.argv[1], "rb") as f:
+    # with open(sys.argv[0], "rb") as f:
+    #     code = f.read().decode("utf-8")
+    
+    with open("C:\\Users\\Nathan\\Documents\\ATP\\tests\\code_samples\\valid\\if_statements\\if_statement_two_expressions_and.txt", "rb") as f:
         code = f.read().decode("utf-8")
+    
 
 
     lexed = lex(code, search_match, TokenExpressions)

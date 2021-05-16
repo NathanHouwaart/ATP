@@ -1,0 +1,53 @@
+{"Program":{
+    "loc_":{"start": {"line": 1, "index": 0}, "end": {"line": 5, "index": 19}},
+    "range_":[0, 51],
+    "body_":{
+        "FunctionDeclaration":{
+            "loc_":{"start": {"line": 1, "index": 0}, "end": {"line": 3, "index": 2}},
+            "range_":[0, 28],
+            "id_":"number",
+            "params_":{
+            },
+            "body_":{
+                "BlockStatement":{
+                    "loc_":{"start": {"line": 2, "index": 4}, "end": {"line": 2, "index": 10}},
+                    "range_":[18, 24],
+                    "body_":{
+                        "ReturnStatement":{
+                            "loc_":{"start": {"line": 2, "index": 4}, "end": {"line": 2, "index": 10}},
+                            "range_":[18, 24],
+                            "argument_":{
+                                "Literal":{
+                                    "loc_":{"start": {"line": 2, "index": 6}, "end": {"line": 2, "index": 8}},
+                                    "range_":[20, 22],
+                                    "value_":12,
+                                    "raw_":12
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "VariableDeclaration":{
+            "loc_":{"start": {"line": 5, "index": 0}, "end": {"line": 5, "index": 19}},
+            "range_":[32, 51],
+            "id_":"test",
+            "init_": {
+                "CallExpression":{
+                    "loc_":{"start": {"line": 5, "index": 9}, "end": {"line": 5, "index": 19}},
+                    "range_":[41, 51],
+                    "arguments_":{
+                    },
+                    "callee_":{
+                        "Identifier":{
+                            "loc_":{"start": {"line": 5, "index": 11}, "end": {"line": 5, "index": 17}},
+                            "range_":[43, 49],
+                            "name_":"number"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}}

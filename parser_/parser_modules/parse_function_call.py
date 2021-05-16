@@ -60,8 +60,6 @@ def parse_function_call_parameters(
     return parse_function_call_parameters_loop(characters, tokens)
     
 
-
-
 def parse_function_call(
     characters: str, 
     tokens: List['Token']
@@ -87,7 +85,7 @@ def parse_function_call(
     """
     call_start, identifier, *tail = tokens
     if identifier.tokentype_ not in (TokenTypes.PRINT, TokenTypes.IDENTIFIER):
-        generate_error_message(identifier, characters, "Expected identifier or print after call statement", True)
+        generate_error_message(identifier, characters, "Expected identifier after call statement", True)
     
     callee              = Identifier(loc_=identifier.loc_, range_=identifier.range_, name_=identifier.value_)
     arguments, tokens   = parse_function_call_parameters(characters, tail)

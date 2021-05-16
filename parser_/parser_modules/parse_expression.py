@@ -120,7 +120,7 @@ def parse_expression_mul_divide(
             Raises a Syntax Error with a message of where the error occured
     """
     node, tokens = parse_operand(characters, tokens)
-    node, tokens = loop(characters, node, tokens, (TokenTypes.MULTIPLY, TokenTypes.DIVIDE), parse_expression_mul_divide)
+    node, tokens = loop(characters, node, tokens, (TokenTypes.MULTIPLY, TokenTypes.DIVIDE), parse_operand)
     return node, tokens
 
 def parse_expression_plus_minus(
@@ -147,7 +147,7 @@ def parse_expression_plus_minus(
             Raises a Syntax Error with a message of where the error occured
     """
     expression, tokens = parse_expression_mul_divide(characters, tokens)
-    expression, tokens = loop(characters, expression, tokens, (TokenTypes.MINUS, TokenTypes.PLUS), parse_expression_plus_minus)
+    expression, tokens = loop(characters, expression, tokens, (TokenTypes.MINUS, TokenTypes.PLUS), parse_expression_mul_divide)
     return expression, tokens
 
 def parse_expression_or_and(
@@ -174,7 +174,7 @@ def parse_expression_or_and(
             Raises a Syntax Error with a message of where the error occured
     """
     expression, tokens = parse_expression_plus_minus(characters, tokens)
-    expression, tokens = loop(characters, expression, tokens, (TokenTypes.GREATER_THAN, TokenTypes.IS_EQUAL, TokenTypes.SMALLER_THAN), parse_expression_or_and)
+    expression, tokens = loop(characters, expression, tokens, (TokenTypes.GREATER_THAN, TokenTypes.IS_EQUAL, TokenTypes.SMALLER_THAN), parse_expression_plus_minus)
     return expression, tokens
 
 
@@ -202,5 +202,5 @@ def parse_expression(
             Raises a Syntax Error with a message of where the error occured
     """
     expression, tokens = parse_expression_or_and(characters, tokens)
-    expression, tokens = loop(characters, expression, tokens, (TokenTypes.OR, TokenTypes.AND), parse_expression)
+    expression, tokens = loop(characters, expression, tokens, (TokenTypes.OR, TokenTypes.AND), parse_expression_or_and)
     return expression, tokens
