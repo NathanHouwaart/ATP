@@ -1,18 +1,40 @@
+"""
+@file symbol_table.py
+@author Nathan Houwaart (nathan.houwaart@student.hu.nl)
+@brief This file contains the SymbolTable object and functions used to edit the a SymbolTable object
+@version 0.1
+@date 11-05-2021
+"""
+
+from misc.node_types import Node
 from typing import Tuple, Callable, Optional, Dict,  Any, List
 try : from token_types import *
 except : from misc.token_types import *
 from dataclasses import dataclass
 from copy import deepcopy
 
-@dataclass(frozen=True)
-class ReturnObject:
-    return_values : List[any]
-    
+
 @dataclass(frozen=False)
 class SymbolTable:
-    symbols : Dict
+    """
+    SymbolTable class
+    ...
+
+    Attributes
+    ----------
+    symbols : Dict[str, Any]
+        A dictionary containing symbol identifiers and their respective values
+    parent: Optional['SymbolTable']
+        Pointer to parent SymbolTable (if there is a parent)
+    return_symbols: List[Any]
+        List containing return symbols that get returned from interpret functions
+    return_stop: bool
+        Boolean inidcating wether a return statement was executed. No more nodes from
+        that specific scope should be executed anymore
+    """
+    symbols : Dict[str, Any]
     parent  : Optional['SymbolTable']
-    return_symbols      : List
+    return_symbols      : List[Any]
     return_stop         : bool
 
 def symbol_table_symbol_exists(symbol_table: SymbolTable, name: str):

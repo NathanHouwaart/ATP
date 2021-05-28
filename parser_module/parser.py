@@ -60,19 +60,17 @@ def parse(
     return [node] + nodes, tokens
 
 if __name__ == "__main__":
-    # if len(sys.argv) < 2:
-    #     print("No source file provided")
-    #     exit()
-    print (os.getcwd())
-    os.chdir('..')
-    print (os.getcwd())
+    if len(sys.argv) < 2:
+        print("No source file provided")
+        exit()
+    # os.chdir('..')
     
-    with open("C:\\Users\\Nathan\\Documents\\ATP\\tests\\code_samples\\valid\\chained_expression\\multiply_divide_expression.txt", 'rb') as f:
+    with open(sys.argv[1], 'rb') as f:
         code = f.read().decode("utf-8")
     
     lexed = lex(code, search_match, TokenExpressions)
     tokens = list(filter(lambda token: token.tokentype_ != TokenTypes.NONE, lexed))
-    list(map(print, lexed)) 
+    # list(map(print, lexed)) 
 
     parsed, eof_token = parse(code, tokens)
     program = Program(loc_={'start': {'line': 1, 'index': 0}, "end":{"line":tokens[-1].loc_["start"]["line"], "index":tokens[-1].loc_["start"]["index"]}}, range_=[0, len(code)], body_=parsed)

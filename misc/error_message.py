@@ -25,8 +25,7 @@ def generate_error_message(token: Token, characters: str, message: str, raise_er
     start_index_error   = token.loc_["start"]["index"]
     end_index_error     = token.loc_["end"]["index"]
     invalid_chars       = characters.split("\n")[token.loc_["start"]["line"]-1]
-    
-    error_message       = message + "\n" + f"File <placeholder>, line {line_no_error}\n\t{invalid_chars}\n\t{' '*start_index_error+ (end_index_error-start_index_error)*'^'}"
+    error_message       = message + "\n" + f"File <placeholder>, line {line_no_error}\n\t{invalid_chars}\n\t{(' '*start_index_error)+ (end_index_error-start_index_error)*'^'}"
     if raise_error:
         raise Exception(error_message)
     return error_message

@@ -1,0 +1,199 @@
+{"Program":{
+    "loc_":{"start": {"line": 1, "index": 0}, "end": {"line": 8, "index": 10}},
+    "range_":[0, 149],
+    "body_":{
+        "FunctionDeclaration":{
+            "loc_":{"start": {"line": 1, "index": 0}, "end": {"line": 5, "index": 2}},
+            "range_":[0, 108],
+            "id_":"fibonachi",
+            "params_":{
+                "Identifier":{
+                    "loc_":{"start": {"line": 1, "index": 16}, "end": {"line": 1, "index": 17}},
+                    "range_":[16, 17],
+                    "name_":"n"
+                }
+            },
+            "body_":{
+                "BlockStatement":{
+                    "loc_":{"start": {"line": 2, "index": 4}, "end": {"line": 4, "index": 47}},
+                    "range_":[27, 104],
+                    "body_":{
+                        "IfStatement":{
+                            "loc_":{"start": {"line": 2, "index": 4}, "end": {"line": 3, "index": 15}},
+                            "range_":[27, 55],
+                            "test_":{
+                                "BinaryExpression":{
+                                    "loc_":{"start": {"line": 2, "index": 6}, "end": {"line": 2, "index": 11}},
+                                    "range_":[29, 34],
+                                    "operator_":"TokenTypes.SMALLER_THAN",
+                                    "left_":{
+                                        "Identifier":{
+                                            "loc_":{"start": {"line": 2, "index": 6}, "end": {"line": 2, "index": 7}},
+                                            "range_":[29, 30],
+                                            "name_":"n"
+                                        }
+                                    },
+                                    "right_":{
+                                        "Literal":{
+                                            "loc_":{"start": {"line": 2, "index": 10}, "end": {"line": 2, "index": 11}},
+                                            "range_":[33, 34],
+                                            "value_":2,
+                                            "raw_":2
+                                        }
+                                    }
+                                }
+                            },
+                            "consequent_":{
+                                "BlockStatement":{
+                                    "loc_":{"start": {"line": 3, "index": 8}, "end": {"line": 3, "index": 13}},
+                                    "range_":[48, 53],
+                                    "body_":{
+                                        "ReturnStatement":{
+                                            "loc_":{"start": {"line": 3, "index": 8}, "end": {"line": 3, "index": 13}},
+                                            "range_":[48, 53],
+                                            "argument_":{
+                                                "Identifier":{
+                                                    "loc_":{"start": {"line": 3, "index": 10}, "end": {"line": 3, "index": 11}},
+                                                    "range_":[50, 51],
+                                                    "name_":"n"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "alternate_":{
+                                
+                            }
+                        },
+                        "ReturnStatement":{
+                            "loc_":{"start": {"line": 4, "index": 4}, "end": {"line": 4, "index": 47}},
+                            "range_":[61, 104],
+                            "argument_":{
+                                "BinaryExpression":{
+                                    "loc_":{"start": {"line": 4, "index": 7}, "end": {"line": 4, "index": 44}},
+                                    "range_":[64, 101],
+                                    "operator_":"TokenTypes.PLUS",
+                                    "left_":{
+                                        "CallExpression":{
+                                            "loc_":{"start": {"line": 4, "index": 7}, "end": {"line": 4, "index": 24}},
+                                            "range_":[64, 81],
+                                            "arguments_":{
+                                                "BinaryExpression":{
+                                                    "loc_":{"start": {"line": 4, "index": 19}, "end": {"line": 4, "index": 22}},
+                                                    "range_":[76, 79],
+                                                    "operator_":"TokenTypes.MINUS",
+                                                    "left_":{
+                                                        "Identifier":{
+                                                            "loc_":{"start": {"line": 4, "index": 19}, "end": {"line": 4, "index": 20}},
+                                                            "range_":[76, 77],
+                                                            "name_":"n"
+                                                        }
+                                                    },
+                                                    "right_":{
+                                                        "Literal":{
+                                                            "loc_":{"start": {"line": 4, "index": 21}, "end": {"line": 4, "index": 22}},
+                                                            "range_":[78, 79],
+                                                            "value_":1,
+                                                            "raw_":1
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "callee_":{
+                                                "Identifier":{
+                                                    "loc_":{"start": {"line": 4, "index": 9}, "end": {"line": 4, "index": 18}},
+                                                    "range_":[66, 75],
+                                                    "name_":"fibonachi"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "right_":{
+                                        "CallExpression":{
+                                            "loc_":{"start": {"line": 4, "index": 27}, "end": {"line": 4, "index": 44}},
+                                            "range_":[84, 101],
+                                            "arguments_":{
+                                                "BinaryExpression":{
+                                                    "loc_":{"start": {"line": 4, "index": 39}, "end": {"line": 4, "index": 42}},
+                                                    "range_":[96, 99],
+                                                    "operator_":"TokenTypes.MINUS",
+                                                    "left_":{
+                                                        "Identifier":{
+                                                            "loc_":{"start": {"line": 4, "index": 39}, "end": {"line": 4, "index": 40}},
+                                                            "range_":[96, 97],
+                                                            "name_":"n"
+                                                        }
+                                                    },
+                                                    "right_":{
+                                                        "Literal":{
+                                                            "loc_":{"start": {"line": 4, "index": 41}, "end": {"line": 4, "index": 42}},
+                                                            "range_":[98, 99],
+                                                            "value_":2,
+                                                            "raw_":2
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "callee_":{
+                                                "Identifier":{
+                                                    "loc_":{"start": {"line": 4, "index": 29}, "end": {"line": 4, "index": 38}},
+                                                    "range_":[86, 95],
+                                                    "name_":"fibonachi"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "VariableDeclaration":{
+            "loc_":{"start": {"line": 7, "index": 0}, "end": {"line": 7, "index": 25}},
+            "range_":[112, 137],
+            "id_":"test",
+            "init_": {
+                "CallExpression":{
+                    "loc_":{"start": {"line": 7, "index": 9}, "end": {"line": 7, "index": 25}},
+                    "range_":[121, 137],
+                    "arguments_":{
+                        "Literal":{
+                            "loc_":{"start": {"line": 7, "index": 21}, "end": {"line": 7, "index": 23}},
+                            "range_":[133, 135],
+                            "value_":15,
+                            "raw_":15
+                        }
+                    },
+                    "callee_":{
+                        "Identifier":{
+                            "loc_":{"start": {"line": 7, "index": 11}, "end": {"line": 7, "index": 20}},
+                            "range_":[123, 132],
+                            "name_":"fibonachi"
+                        }
+                    }
+                }
+            }
+        },
+        "CallExpression":{
+            "loc_":{"start": {"line": 8, "index": 0}, "end": {"line": 8, "index": 10}},
+            "range_":[139, 149],
+            "arguments_":{
+                "Identifier":{
+                    "loc_":{"start": {"line": 8, "index": 4}, "end": {"line": 8, "index": 8}},
+                    "range_":[143, 147],
+                    "name_":"test"
+                }
+            },
+            "callee_":{
+                "Identifier":{
+                    "loc_":{"start": {"line": 8, "index": 2}, "end": {"line": 8, "index": 3}},
+                    "range_":[141, 142],
+                    "name_":"🖨"
+                }
+            }
+        }
+    }
+}}

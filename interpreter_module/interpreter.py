@@ -120,25 +120,20 @@ def interpret(code, program: Program):
 
 
 if __name__ == '__main__':
-    # if len(sys.argv) < 2:
-    #     print("Expected filename")
-    #     exit()
+    if len(sys.argv) < 2:
+        print("Expected filename")
+        exit()
 
-    # with open(sys.argv[0], "rb") as f:
-    #     code = f.read().decode("utf-8")
-    
-    with open("C:\\Users\\Nathan\\Documents\\ATP\\tests\\code_samples\\valid\\if_statements\\if_statement_two_expressions_and.txt", "rb") as f:
-        code = f.read().decode("utf-8")
-    
-
+    with open(sys.argv[1], "rb") as f:
+        code = f.read().decode("utf-8")  
 
     lexed = lex(code, search_match, TokenExpressions)
     tokens = list(filter(lambda token: token.tokentype_ != TokenTypes.NONE, lexed))
-    
+
     parsed, eof_token = parse(code, tokens)
     program = Program(loc_={'start': {'line': 1, 'index': 0}, "end":{"line":tokens[-1].loc_["start"]["line"], "index":tokens[-1].loc_["start"]["index"]}}, range_=[0, len(code)], body_=parsed)
     
-    with open("output.json", "wb") as f:
+    with open("ast_to_interpret.json", "wb") as f:
         f.write(program.jsonify().encode("utf-8"))
     
     time_start = time.time()
