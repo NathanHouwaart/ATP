@@ -55,6 +55,19 @@ def generate_error_message(func_1: node_types.Node, func_2:node_types.Node, char
         raise Exception(error_message)
     return error_message
 
+@overload((node_types.FunctionDeclaration, str, str, bool))
+def generate_error_message(node: node_types.Node, characters: str, message: str, raise_error: bool):
+    line_no_error       = node.loc_["start"]["line"]
+    start_index_error   = node.loc_["start"]["index"]
+    invalid_chars       = characters.split("\n")[line_no_error-1]
+    
+    error_message       = message + "\n" + f"File <placeholder>, line {line_no_error}"
+    error_message       += f"\n\t{invalid_chars}\n\t{' '*start_index_error+ len(invalid_chars)*'^'}\n"
+    
+    if raise_error:
+        raise Exception(error_message)
+    return error_message
+
 @overload((node_types.Literal, str, str, bool))
 def generate_error_message(node: node_types.Literal, characters: str, message: str, raise_error: bool):
     line_no_error       = node.loc_["start"]["line"]
@@ -69,6 +82,18 @@ def generate_error_message(node: node_types.Literal, characters: str, message: s
     return error_message
 
 @overload((node_types.Identifier, str, str, bool))
+def generate_error_message(node: node_types.Identifier, characters: str, message: str, raise_error: bool):
+    line_no_error       = node.loc_["start"]["line"]
+    start_index_error   = node.loc_["start"]["index"]
+    end_index_error     = node.loc_["end"]["index"]
+    invalid_chars       = characters.split("\n")[line_no_error-1]
+    
+    error_message       = message + "\n" + f"File <placeholder>, line {line_no_error}\n\t{invalid_chars}\n\t{' '*start_index_error+ (end_index_error-start_index_error)*'^'}"
+    if raise_error:
+        raise Exception(error_message)
+    return error_message
+
+@overload((node_types.VariableDeclaration, str, str, bool))
 def generate_error_message(node: node_types.Identifier, characters: str, message: str, raise_error: bool):
     line_no_error       = node.loc_["start"]["line"]
     start_index_error   = node.loc_["start"]["index"]

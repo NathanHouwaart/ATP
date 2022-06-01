@@ -118,7 +118,6 @@ def interpret(code, program: Program):
     symbol_table = symbol_table_set(symbol_table, "🖨", print)
     return interpret_loop(code, program.body_, symbol_table)
 
-
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         print("Expected filename")

@@ -32,6 +32,9 @@ if __name__ == "__main__":
     parsed, leftover_token = parse(code, tokens)
     program = Program(loc_={'start': {'line': 1, 'index': 0}, "end":{"line":tokens[-1].loc_["start"]["line"], "index":tokens[-1].loc_["start"]["index"]}}, range_=[0, len(code)], body_=parsed)
 
+    with open("pretty_printed.json", "wb") as f:
+        f.write(program.jsonify().encode("utf-8"))
+    
     time_start = time.time()
     result = interpret(code, program)
     time_stop = time.time()
