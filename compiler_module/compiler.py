@@ -117,21 +117,6 @@ def compile_BlockStatement(code: str, node: BlockStatement, symbol_table: Symbol
     print("compile_BlockStatement")
     return compile_loop(code, node.body_, symbol_table, call_stack + [BlockStatement])
 
-def compile_CallExpression(code: str, node: CallExpression, symbol_table: SymbolTable):
-    print("compile_CallExpression")
-
-    # 1. Get number of arguments passed. Will be used to determine the registers
-    number_of_params = len(node.arguments_)
-    
-    # 2.
-    result, symbol_table = symbol_table_get_and_del_return_symbol(compile_loop(code, node.arguments_, symbol_table))
-    print(result)
-    callee, symbol_table = symbol_table_get_and_del_return_symbol(compile_Identifier(code, node.callee_, symbol_table, True))
- 
-  
-    # symbol_table = symbol_table_add_return_symbol(symbol_table, cm0_call(node.name_))
-    
-    return symbol_table
 
 def compile_BinaryExpression(code: str, node: BinaryExpression, symbol_table: SymbolTable, call_stack):
     operator = node.operator_
@@ -147,9 +132,7 @@ def compile_BinaryExpression(code: str, node: BinaryExpression, symbol_table: Sy
         right, symbol_table = symbol_table_get_and_del_return_symbol(compile_loop(code, [node.right_], symbol_table, call_stack + [BinaryExpression]))
         left , symbol_table = symbol_table_get_and_del_return_symbol(compile_loop(code, [node.left_], symbol_table, call_stack + [BinaryExpression]))
         print(right, left)
-        
-    
-    
+
     if   operator == TokenTypes.PLUS          : symbol_table_add_return_symbol(symbol_table, cm0_add(left[0], right[0]))
     elif operator == TokenTypes.MINUS         : symbol_table_add_return_symbol(symbol_table, cm0_sub(left[0], right[0]))
     elif operator == TokenTypes.DIVIDE        : symbol_table_add_return_symbol(symbol_table, cm0_div(left[0], right[0], symbol_table))
@@ -165,6 +148,7 @@ def compile_BinaryExpression(code: str, node: BinaryExpression, symbol_table: Sy
 def present(arr, v): 
     return arr.count(v)
 
+
 def compile_Identifier(code: str, node: Identifier, symbol_table: SymbolTable, call_stack):
     print("compile_Identifier")
     
@@ -173,17 +157,6 @@ def compile_Identifier(code: str, node: Identifier, symbol_table: SymbolTable, c
     if symbol == None:                                                             # If not defined
         generate_error_message(node, code, f"{node.name_} is not defined", True)        # Generate error message
     
-    # 2. If symbol is a parameter
-    if symbol.symbol_type == SymbolType.ARGUMENT:   
-        if call_stack and present(call_stack, ReturnStatement):
-            if(symbol.symbol_register != 0):
-                cm0_mov(0, symbol.symbol_register)
-                
-    if symbol.symbol_type == SymbolType.VARIABLE:
-        if call_stack and present(call_stack, ReturnStatement):
-            print(symbol)
-            if(symbol.symbol_register != 0):
-                cm0_mov(0, symbol.symbol_register)
     
     symbol_table_add_return_symbol(symbol_table, symbol.symbol_register)
     return symbol_table
