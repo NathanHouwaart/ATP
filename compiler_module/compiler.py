@@ -1,4 +1,4 @@
-from ast import Return, operator
+from ast import Return, literal_eval, operator
 from ctypes.wintypes import PUSHORT
 from inspect import stack
 from pyclbr import Function
@@ -6,6 +6,7 @@ import sys
 import os
 import time
 from itertools import islice
+from tkinter import Variable
 from cortexm0 import *
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -24,6 +25,8 @@ from cortexm0 import *
 # ----------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------  Helper Functions ------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
+
+counter = 0
 
 def get_attribute(method_name, default):
     if method_name in globals():
@@ -63,7 +66,7 @@ def add_function_arguments_to_symbol_table(symbol_table: SymbolTable, arguments:
         generate_error_message(head, code, "Duplicate function argument", True)
         
     # If not, add argument to symbol table
-    symbol_table = symbol_table_set(symbol_table, head.name_ , VairableSymbol(head.name_, SymbolType.ARGUMENT, register_loc))
+    symbol_table = symbol_table_set(symbol_table, head.name_ , VairableSymbol(head.name_, SymbolType.ARGUMENT, head.name_ + "_reg"))
     return add_function_arguments_to_symbol_table(symbol_table, tail, register_loc + 1)
 
 
@@ -106,7 +109,7 @@ def compile_FunctionDeclaration(code: str, node: FunctionDeclaration, symbol_tab
 
 def compile_ReturnStatement(code: str, node: ReturnStatement, symbol_table: SymbolTable, call_stack):
     print("compile_ReturnStatement")
-    result, symbol_table = symbol_table_get_and_del_return_symbol(compile_loop(code, [node.argument_], symbol_table, call_stack + [ReturnStatement]))
+    result, symbol_table = symbol_table_get_and_del_return_symbol(compile_loop(code, [node.argument_], symbol_table, call_stack + [node]))
     return symbol_table
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -115,34 +118,74 @@ def compile_ReturnStatement(code: str, node: ReturnStatement, symbol_table: Symb
 
 def compile_BlockStatement(code: str, node: BlockStatement, symbol_table: SymbolTable, call_stack):
     print("compile_BlockStatement")
-    return compile_loop(code, node.body_, symbol_table, call_stack + [BlockStatement])
+    return compile_loop(code, node.body_, symbol_table, call_stack + [node])
 
 
-def compile_BinaryExpression(code: str, node: BinaryExpression, symbol_table: SymbolTable, call_stack):
+def compile_BinaryExpression(code: str, node: BinaryExpression, symbol_table: SymbolTable, call_stack: Node):
+    print("compile_BinaryExpression")
     operator = node.operator_
-    
+
     # Check which node to walk first: deepest node goes first in order to minimize stack usage    
     left = calculate_num_nodes(code, node.left_, symbol_table)
     right = calculate_num_nodes(code, node.right_, symbol_table)
     
     if(left > right):
-        left , symbol_table = symbol_table_get_and_del_return_symbol(compile_loop(code, [node.left_], symbol_table, call_stack + [BinaryExpression]))
-        right, symbol_table = symbol_table_get_and_del_return_symbol(compile_loop(code, [node.right_], symbol_table, call_stack + [BinaryExpression]))       
+        left , symbol_table = symbol_table_get_and_del_return_symbol(compile_loop(code, [node.left_], symbol_table, call_stack + [node]))
+        right, symbol_table = symbol_table_get_and_del_return_symbol(compile_loop(code, [node.right_], symbol_table, call_stack + [node]))       
     else:
-        right, symbol_table = symbol_table_get_and_del_return_symbol(compile_loop(code, [node.right_], symbol_table, call_stack + [BinaryExpression]))
-        left , symbol_table = symbol_table_get_and_del_return_symbol(compile_loop(code, [node.left_], symbol_table, call_stack + [BinaryExpression]))
-        print(right, left)
+        right, symbol_table = symbol_table_get_and_del_return_symbol(compile_loop(code, [node.right_], symbol_table, call_stack + [node]))
+        left , symbol_table = symbol_table_get_and_del_return_symbol(compile_loop(code, [node.left_], symbol_table, call_stack + [node]))
+    right = right[0]
+    left  = left[0]
+    # print(right, left)
 
-    if   operator == TokenTypes.PLUS          : symbol_table_add_return_symbol(symbol_table, cm0_add(left[0], right[0]))
-    elif operator == TokenTypes.MINUS         : symbol_table_add_return_symbol(symbol_table, cm0_sub(left[0], right[0]))
-    elif operator == TokenTypes.DIVIDE        : symbol_table_add_return_symbol(symbol_table, cm0_div(left[0], right[0], symbol_table))
-    elif operator == TokenTypes.MULTIPLY      : symbol_table_add_return_symbol(symbol_table, cm0_mul(left[0], right[0]))
-    # elif operator == TokenTypes.IS_EQUAL      : symbol_table_add_return_symbol()
-    # elif operator == TokenTypes.GREATER_THAN  : symbol_table_add_return_symbol()
-    # elif operator == TokenTypes.SMALLER_THAN  : symbol_table_add_return_symbol()
-    # elif operator == TokenTypes.AND           : symbol_table_add_return_symbol()
-    # elif operator == TokenTypes.OR            : symbol_table_add_return_symbol()
+    try:
+        result_reg_name = call_stack[-1].id_ + "_reg"
+    except:
+        result_reg_name = right.symbol_name + "_" + left.symbol_name + "_res"
     
+    if   operator == TokenTypes.PLUS:
+        result_register = cm0_add(result_reg_name,  right.symbol_register, left.symbol_register)
+        symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register + "_reg"))
+    elif operator == TokenTypes.MINUS: 
+        result_register = cm0_sub(result_reg_name,  right.symbol_register, left.symbol_register)
+        symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register + "_reg"))
+        # elif operator == TokenTypes.DIVIDE        : symbol_table_add_return_symbol(symbol_table, cm0_div(left[0], right[0], symbol_table))
+    elif operator == TokenTypes.MULTIPLY: 
+        result_register = cm0_mul(result_reg_name,  right.symbol_register, left.symbol_register)
+        symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register + "_reg"))
+    elif operator == TokenTypes.IS_EQUAL:
+        cm0_movi(right.symbol_name + "_eq_" + left.symbol_name + "_res_reg", 1)
+        cm0_cmp(right.symbol_register, left.symbol_register)
+        cm0_beq(right.symbol_name + "_eq_" + left.symbol_name + "_res_equal")
+        cm0_mov(right.symbol_name + "_eq_" + left.symbol_name + "_res_reg", 0)
+        cm0_label(right.symbol_name + "_eq_" + left.symbol_name + "_res_equal")
+        result_register = right.symbol_name + "_eq_" + left.symbol_name + "_res_reg"
+        symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register + "_reg"))        
+    elif operator == TokenTypes.GREATER_THAN  : 
+        cm0_movi(right.symbol_name + "_gt_" + left.symbol_name + "_res_reg", 1)
+        cm0_cmp(right.symbol_register, left.symbol_register)
+        cm0_bgt(right.symbol_name + "_gt_" + left.symbol_name + "_res_greater_than")
+        cm0_mov(right.symbol_name + "_gt_" + left.symbol_name + "_res_reg", 0)
+        cm0_label(right.symbol_name + "_gt_" + left.symbol_name + "_res_greater_than")
+        result_register = right.symbol_name + "_gt_" + left.symbol_name + "_res_reg"
+        symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register + "_reg"))        
+    elif operator == TokenTypes.SMALLER_THAN  : 
+        cm0_movi(right.symbol_name + "_lt_" + left.symbol_name + "_res_reg", 1)
+        cm0_cmp(right.symbol_register, left.symbol_register)
+        cm0_blt(right.symbol_name + "_lt_" + left.symbol_name + "_res_less_than")
+        cm0_mov(right.symbol_name + "_lt_" + left.symbol_name + "_res_reg", 0)
+        cm0_label(right.symbol_name + "_lt_" + left.symbol_name + "_res_less_than")
+        result_register = right.symbol_name + "_lt_" + left.symbol_name + "_res_reg"
+        symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register + "_reg"))        
+
+    elif operator == TokenTypes.AND:
+        result_register = cm0_and(result_reg_name,  right.symbol_register, left.symbol_register)
+        symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register + "_reg"))
+    elif operator == TokenTypes.OR: 
+        result_register = cm0_or(result_reg_name,  right.symbol_register, left.symbol_register)
+        symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register + "_reg"))
+     
     return symbol_table
 
 def present(arr, v): 
@@ -150,22 +193,21 @@ def present(arr, v):
 
 
 def compile_Identifier(code: str, node: Identifier, symbol_table: SymbolTable, call_stack):
-    print("compile_Identifier")
+    # print("compile_Identifier")
     
     # 1. Check if identifier is defined
     symbol = symbol_table_get(symbol_table, node.name_)                            # Get information from symbol table
     if symbol == None:                                                             # If not defined
         generate_error_message(node, code, f"{node.name_} is not defined", True)        # Generate error message
-    
-    
-    symbol_table_add_return_symbol(symbol_table, symbol.symbol_register)
+        
+    symbol_table_add_return_symbol(symbol_table, symbol)
     return symbol_table
 
 
 def compile_VariableDeclaration(code: str, node: VariableDeclaration, symbol_table: SymbolTable, call_stack):
     print("compile_VariableDeclaration")
     # 1. Initialize variable
-    symbol_table = compile_loop(code, [node.init_], symbol_table, call_stack + [VariableDeclaration])                       # Compile the initializer 
+    symbol_table = compile_loop(code, [node.init_], symbol_table, call_stack + [node])                       # Compile the initializer 
     return_symbol, symbol_table = symbol_table_get_and_del_return_symbol(symbol_table)  # Get the register that the initializer is stored in
     return_symbol = return_symbol[0]                                                    # Get the register number                   
     
@@ -182,13 +224,16 @@ def compile_VariableDeclaration(code: str, node: VariableDeclaration, symbol_tab
     # 4b. if variable is not defined. define it
     else:
         symbol_table = symbol_table_set(symbol_table, node.id_, 
-                                        VairableSymbol(node.id_, SymbolType.VARIABLE, return_symbol))     # Add new variable to symbol table with stack offset
+                                        VairableSymbol(node.id_, SymbolType.VARIABLE, node.id_ + "_reg"))     # Add new variable to symbol table with stack offset
     return symbol_table
  
  
  
 def compile_Literal(code: str, node: Literal, symbol_table: SymbolTable, call_stack):
-    symbol_table = symbol_table_add_return_symbol(symbol_table, cm0_movi(node.value_))
+    literal_id = "literal_value_" + node.raw_ + "_" + str(node.range_)
+    symbol = LiteralSymbol(literal_id, SymbolType.LITERAL, literal_id + "_reg")
+    symbol_table = symbol_table_set(symbol_table, literal_id, symbol)
+    symbol_table = symbol_table_add_return_symbol(symbol_table, symbol)
     return symbol_table
 
 

@@ -98,25 +98,59 @@ def cm0_mov(r1, r2):
 
 def cm0_add(r1, r2, r3):
     print(f"\tadd".ljust(10), f"{Registers.registers[r1]}, {Registers.registers[r2]}, {Registers.registers[r3]}")
+
+
+###############################################################################    
+
+def cm0_add(r1, r2, r3):
+    print(f"\tadd".ljust(10), f"{r1}, {r2}, {r3}")
+    return r1
+
+def cm0_mul(r1, r2, r3):
+    print(f"\tmul".ljust(10), f"{r1}, {r2}, {r3}")
+    return r1
+
+def cm0_sub(r1, r2, r3):
+    print(f"\tsub".ljust(10), f"{r1}, {r2}, {r3}")
+    return r1
+
+def cm0_cmp(r1, r2):
+    print(f"\tcmp".ljust(10), f"{r1}, {r2}")
     
+def cm0_blt(label_name):
+    print(f"\tblt".ljust(10), f"{label_name}")
 
-def cm0_add(r1, r2):
-    print(f"\tadd".ljust(10), f"{Registers.registers[r1]}, {Registers.registers[r1]}, {Registers.registers[r2]}")
-    Registers.free_register(r2)
-    # print(Registers.free)
-    return r1
+def cm0_bgt(label_name):
+    print(f"\tbgt".ljust(10), f"{label_name}")
 
-def cm0_sub(r1, r2):
-    print(f"\tsub".ljust(10), f"{Registers.registers[r1]}, {Registers.registers[r1]}, {Registers.registers[r2]}")
-    Registers.free_register(r2)
-    # print(Registers.free)
-    return r1
+def cm0_bne(label_name):
+    print(f"\tbne".ljust(10), f"{label_name}")
 
-def cm0_mul(r1, r2):
-    print(f"\tmul".ljust(10), f"{Registers.registers[r1]}, {Registers.registers[r1]}, {Registers.registers[r2]}")
-    Registers.free_register(r2)
-    # print(Registers.free)
-    return r1
+def cm0_beq(label_name):
+    print(f"\tbeq".ljust(10), f"{label_name}")
+
+def cm0_or(r1, r2, r3):
+    print(f"\torr".ljust(10), f"{r1}, {r2}, {r3}")
+
+def cm0_and(r1, r2, r3):
+    print(f"\tand".ljust(10), f"{r1}, {r2}, {r3}")
+
+def cm0_mov(r1, r2):
+    print(f"\tmov".ljust(10), f"{r1}, {r2}")
+
+def cm0_movi(r1, value):
+    print(f"\tmov".ljust(10), f"{r1}, #{value}")
+    
+def cm0_label(label_name):
+    print(f"{label_name}:")
+
+
+# def cm0_sub(r1, r2):
+#     print(f"\tsub".ljust(10), f"{Registers.registers[r1]}, {Registers.registers[r1]}, {Registers.registers[r2]}")
+#     Registers.free_register(r2)
+#     # print(Registers.free)
+#     return r1
+
 
 
 def cm0_call(function_name):
@@ -125,59 +159,6 @@ def cm0_call(function_name):
 
 def cm0_create_label(label_name):
     print(f"{label_name}:")
-
-def cm0_div(r1, r2, symbol_table: SymbolTable):
-    """
-    Function generates a Cortex M0 ASM Divide instruction.
-    
-    Args:
-        r1                  : Register which holds the numerator; Register to store the result in
-        r2                  : Register which holds the denominator
-
-    Returns:
-        If no errors occured:
-            - An AST in the form of a program node
-            - An EOF Token
-        If a grammar error occured:
-            Raises a Syntax Error with a message of where the error occured
-    """
-    if r1 == 0 and r2 == 1:
-        print(f"\tbl".ljust(10),  f"__aeabi_idiv")
-        Registers.free_register(r2)
-        return r1
-    elif r1 == 0 and r2 != 1:
-        if(not Registers.free[1]): # if r1 is not free
-            print("load r1 to stack")
-            print(f"\tmov".ljust(10), f"r1, {Registers.registers[r2]}")
-            Registers.free_register(r2)
-        else:
-            print(f"\tmov".ljust(10), f"r1, {Registers.registers[r2]}")
-            Registers.allocate_specific_register(1)
-            Registers.free_register(r2)
-    elif r1 != 0 and r2 == 1:
-        if(not Registers.free[0]): # if r0 is not free
-            print("load r1 to stack")
-            print(f"\tmov".ljust(10), f"r0, {Registers.registers[r2]}")
-            Registers.free_register(r1)
-        else:
-            print(f"\tmov".ljust(10), f"r0, {Registers.registers[r2]}")
-            Registers.allocate_specific_register(0)
-            Registers.free_register(r1)
-    elif r1 == 1 and r2 == 0:
-        print("hts")
-        return r1
-
-    if r1 != 0:
-        print("\tmov".ljust(10), f"r0, {Registers.registers[r1]}")
-        Registers.allocate_specific_register(0)
-        Registers.free_register(r1)
-    if r2 != 1:
-        print("\tmov".ljust(10), f"r1, {Registers.registers[r2]}")
-        Registers.free_register(r2)
-        
-    print(f"\tbl".ljust(10),  f"__aeabi_idiv")
-    # print(Registers.free)
-    return 0
 
 
 def cm0_function_preamble(stack_size):

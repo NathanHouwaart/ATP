@@ -6,6 +6,7 @@
 @date 11-05-2021
 """
 
+from tkinter.tix import IMMEDIATE
 from misc.node_types import Node
 from typing import Tuple, Callable, Optional, Dict,  Any, List
 try : from token_types import *
@@ -21,6 +22,7 @@ class SymbolType(Enum):
     ARGUMENT = 3
     RETURN   = 4
     STACK    = 5
+    LITERAL  = 6
 
 
 @dataclass(frozen=False)
@@ -36,6 +38,9 @@ class FunctionSymbol(Symbol):
 class VairableSymbol(Symbol):
     symbol_register:        int
 
+@dataclass(frozen=False)
+class LiteralSymbol(Symbol):
+    symbol_register:        int
 
 @dataclass(frozen=False)
 class SymbolTable:

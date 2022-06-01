@@ -1,4 +1,6 @@
 ƒ test | α var1 | α var2 ––>
-    📁 test_variable = 2 * var1 + var2
-    ⮐ test_variable ⮐
+    📁 test_variable = 2 * < < var1 + var2 > + 44 >
+    📁 test_variable2 = test_variable * < 3 + var2 >
+    📁 assert_variable = test_variable2 ▼ test_variable
+    ⮐ test_variable == < test_variable2 ▲ assert_variable > ⮐
 ––
