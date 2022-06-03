@@ -144,7 +144,11 @@ def cm0_movi(r1, value):
 def cm0_label(label_name):
     print(f"{label_name}:")
 
+def cm0_b(label_name):
+    print(f"\tb".ljust(10), f"{label_name}")
 
+def cm0_return():
+    print("\tpop".ljust(10),  "{pc}")
 # def cm0_sub(r1, r2):
 #     print(f"\tsub".ljust(10), f"{Registers.registers[r1]}, {Registers.registers[r1]}, {Registers.registers[r2]}")
 #     Registers.free_register(r2)
@@ -167,7 +171,8 @@ def cm0_function_preamble(stack_size):
         print("\tsub".ljust(10),  "sp, sp, #4")
         
     
-def cm0_function_postamble(stack_size):
+def cm0_function_postamble(func_name, stack_size):
+    cm0_label(f"{func_name}_end")
     if(stack_size):
         print("\tadd".ljust(10),  "sp, sp, #4")
     print("\tpop".ljust(10),  "{pc}")

@@ -1,0 +1,80 @@
+test_function:
+	push      {lr}
+	mov       literal_value_1_52_53_var1_res, #1
+	cmp       literal_value_1_52_53_reg, var1_reg
+	beq       literal_value_1_52_53_eq_var1_res_equal
+	mov       literal_value_1_52_53_var1_res, #0
+literal_value_1_52_53_eq_var1_res_equal:
+	cmp       literal_value_1_52_53_var1_res_reg, #0
+	beq       test_function_if_false_0_42_279
+	add       function_return_reg, var2_reg, var1_reg
+	mov       r0, function_return_reg_reg
+	b         test_function_end
+test_function_if_false_0_42_279:
+	mov       literal_value_2_96_97_var2_res, #1
+	cmp       literal_value_2_96_97_reg, var2_reg
+	beq       literal_value_2_96_97_eq_var2_res_equal
+	mov       literal_value_2_96_97_var2_res, #0
+literal_value_2_96_97_eq_var2_res_equal:
+	cmp       literal_value_2_96_97_var2_res_reg, #0
+	beq       test_function_if_false_1_86_279
+	sub       function_return_reg, var2_reg, var1_reg
+	mov       r0, function_return_reg_reg
+	b         test_function_end
+test_function_if_false_1_86_279:
+	mov       literal_value_2_140_141_var2_res, #1
+	cmp       literal_value_2_140_141_reg, var2_reg
+	beq       literal_value_2_140_141_eq_var2_res_equal
+	mov       literal_value_2_140_141_var2_res, #0
+literal_value_2_140_141_eq_var2_res_equal:
+	cmp       literal_value_2_140_141_var2_res_reg, #0
+	beq       test_function_if_false_2_130_279
+	sub       function_return_reg, var2_reg, var1_reg
+	mov       r0, function_return_reg_reg
+	b         test_function_end
+test_function_if_false_2_130_279:
+	mov       literal_value_2_184_185_var2_res, #1
+	cmp       literal_value_2_184_185_reg, var2_reg
+	beq       literal_value_2_184_185_eq_var2_res_equal
+	mov       literal_value_2_184_185_var2_res, #0
+literal_value_2_184_185_eq_var2_res_equal:
+	cmp       literal_value_2_184_185_var2_res_reg, #0
+	beq       test_function_if_false_3_174_279
+	sub       function_return_reg, var2_reg, var1_reg
+	mov       r0, function_return_reg_reg
+	b         test_function_end
+test_function_if_false_3_174_279:
+	mov       literal_value_1_242_243_var1_res, #1
+	cmp       literal_value_1_242_243_reg, var1_reg
+	beq       literal_value_1_242_243_eq_var1_res_equal
+	mov       literal_value_1_242_243_var1_res, #0
+literal_value_1_242_243_eq_var1_res_equal:
+	cmp       literal_value_1_242_243_var1_res_reg, #0
+	beq       test_function_if_false_4_232_277
+	add       function_return_reg, var2_reg, var1_reg
+	mov       r0, function_return_reg_reg
+	b         test_function_end
+test_function_if_false_4_232_277:
+	add       var2_var1_res, var2_reg, var1_reg
+	add       literal_value_44_326_328_var2_var1_res_res, literal_value_44_326_328_reg, var2_var1_res_reg
+	mul       literal_value_44_326_328_var2_var1_res_res_literal_value_2_302_303_res, literal_value_44_326_328_var2_var1_res_res_reg, literal_value_2_302_303_reg
+	add       var2_literal_value_3_372_373_res, var2_reg, literal_value_3_372_373_reg
+	mul       var2_literal_value_3_372_373_res_test_variable_res, var2_literal_value_3_372_373_res_reg, test_variable_reg
+	mov       test_variable_test_variable2_res, #1
+	cmp       test_variable_reg, test_variable2_reg
+	blt       test_variable_lt_test_variable2_res_less_than
+	mov       test_variable_test_variable2_res, #0
+test_variable_lt_test_variable2_res_less_than:
+	mov       assert_variable_test_variable2_res, #1
+	cmp       assert_variable_reg, test_variable2_reg
+	bgt       assert_variable_gt_test_variable2_res_greater_than
+	mov       assert_variable_test_variable2_res, #0
+assert_variable_gt_test_variable2_res_greater_than:
+	mov       function_return_reg, #1
+	cmp       assert_variable_test_variable2_res_reg, test_variable_reg
+	beq       assert_variable_test_variable2_res_eq_test_variable_res_equal
+	mov       function_return_reg, #0
+assert_variable_test_variable2_res_eq_test_variable_res_equal:
+	mov       r0, function_return_reg_reg
+test_function_end:
+	pop       {pc}
