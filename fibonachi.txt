@@ -1,8 +1,5 @@
-ƒ fibonachi | α n ––>
+ƒ fibonacci | α n ––>
     ? n ▼ 2 ––>
         ⮐ n ⮐ ¿
-    ⮐ <✆ fibonachi n-1 ✆ + ✆ fibonachi n-2 ✆> ⮐
+    ⮐ <✆ fibonacci n-1 ✆ + ✆ fibonacci n-2 ✆> ⮐
 ––
-
-📁 test = ✆ fibonachi 16 ✆
-✆ 🖨 test ✆

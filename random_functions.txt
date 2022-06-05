@@ -1,0 +1,29 @@
+ƒ odd | α n ––>
+    ? n == 0 ––>
+        ⮐ 0 ⮐ ¿
+    ⮐ ✆ even n-1 ✆ ⮐
+––
+
+ƒ even | α n ––>
+    ? n == 0 ––>
+        ⮐ 1 ⮐ ¿
+    ⮐ ✆ odd n-1 ✆ ⮐
+––
+
+
+ƒ random_function | α var1 ––>
+    📁 solution = 0
+    📁 test_variable = ✆ fibonacci var1 ✆
+    ? < test_variable ▲ 100 > ––>
+        📁 solution = 42
+    ⁇ ––>
+        📁 solution = 2 ¿
+    ⮐ solution ⮐ 
+––
+
+
+ƒ fibonacci | α n ––>
+    ? n ▼ 2 ––>
+        ⮐ n ⮐ ¿
+    ⮐ <✆ fibonacci n-1 ✆ + ✆ fibonacci n-2 ✆> ⮐
+––

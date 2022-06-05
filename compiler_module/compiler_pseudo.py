@@ -1,6 +1,10 @@
+from calendar import c
+from subprocess import call
 import sys
 import os
 import time
+
+from defer import return_value
 from cortexm0 import *
 import io
 
@@ -34,24 +38,43 @@ def get_attribute(method_name, default):
 
 def no_compile_method(code: str, node: Node, symbol_table: SymbolTable, call_stack: List[Node]):
     print("no compile method for node type", type(node))
+    exit()
     return symbol_table
 
 def calculate_num_nodes(code: str, node: Node, symbol_table: SymbolTable):
-    if(type(node) == Identifier or type(node) == Literal):
-        return 1
-    elif(type(node) == BinaryExpression):
+    if(type(node) == BinaryExpression):
         left = 1 + calculate_num_nodes(code, node.left_, symbol_table)
         right = 1 + calculate_num_nodes(code, node.right_, symbol_table)
         if(right > left):
             return right
         else:
             return left
-    return 1 + calculate_num_nodes(code, node, symbol_table)
+    else:
+        return 1
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------  Compile Functions -----------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
+
+def compile_CallExpression(code: str, node: CallExpression, symbol_table: SymbolTable, call_stack: List[Node]):
+    # print("compile_CallExpression")
+    # 1. Check if function is defined
+    # symbol_info = symbol_table_get(symbol_table, node.callee_.name_)
+    # if symbol_info == None:
+    #     generate_error_message(node, code, "Undefined function", True)
+    
+    return_value, symbol_table = symbol_table_get_and_del_return_symbol(compile_loop(code, node.arguments_, symbol_table, call_stack + [node]))
+    print("\tnotpush".ljust(10), "{ " + return_value[0].symbol_register + " }")
+    cm0_mov("r0", return_value[0].symbol_register)
+    cm0_call(node.callee_.name_)
+    cm0_mov(return_value[0].symbol_register, "r0")
+    print("\tnotpop".ljust(10), "{ " + return_value[0].symbol_register + " }")
+    if(type(call_stack[-1]) == VariableDeclaration):
+        cm0_mov(call_stack[-1].id_ + "_reg", return_value[0].symbol_register)
+
+    symbol_table = symbol_table_add_return_symbol(symbol_table, return_value[0])
+    return symbol_table
 
 
 def add_function_arguments_to_symbol_table(symbol_table: SymbolTable, arguments: List[Literal], register_loc = 0):
@@ -97,6 +120,7 @@ def compile_FunctionDeclaration(code: str, node: FunctionDeclaration, symbol_tab
     # Registers.allocate_register_range(0, len(node.params_))
 
     # 7. Write assebmly code for function
+    print(".global ", node.id_)
     cm0_create_label(node.id_)                                                                      # Create label for branch
     cm0_function_preamble(0)                                                                        # Write function preamble
     function_symbol_table = compile_loop(code, [node.body_], function_symbol_table, call_stack + [node])     # Compile function body
@@ -306,6 +330,8 @@ def regnames_count(code, register_count: Dict[str, int]):
         for i in range(1, len(line)):
             if line[i][0] == "#":
                 continue
+            if line[i] == "sp":
+                continue
             if line[i] in register_count:
                 register_count[line[i]][0] += 1
             else:
@@ -315,10 +341,10 @@ def regnames_count(code, register_count: Dict[str, int]):
 def format_pseudo_output(psuedo_output: str):
     formatted_psuedo_output = []
     for line in psuedo_output.split("\n"):
-        if(line == "" or ":" in line):
+        if(line == "" or ":" in line or re.findall(r"\blr\b", line) or re.findall(r"\bpc\b", line)):
             continue
         line = line.replace(',', ' ').split()
-        if line[0] == "push" or  line[0] == "pop" or line[0] ==  "beq" or line[0] ==  "b"  or line[0] == "bne" or line[0] == line or line[0] == "bgt" or line[0] == "blt":
+        if line[0] ==  "beq" or line[0] ==  "b"  or line[0] == "bne" or line[0] == line or line[0] == "bgt" or line[0] == "blt" or line[0] == "str" or line[0] == "ldr" or line[0] == "bl" or line[0] == ".global":
             continue
         formatted_psuedo_output.append(line)
     return formatted_psuedo_output
@@ -353,12 +379,12 @@ def compile(code, program: Program):
             Registers.register_status[register] = RegisterStatus.ALLOCATED
             register_count[register][1] = register
             
-    
     for line in pseudo_output.split("\n"):
         split_line = line.split()
         if not split_line:
+            print()
             continue
-        if split_line[0] == "beq" or split_line[0] == "bne" or split_line[0] == "bgt" or split_line[0] == "blt" or split_line[0] == "b":
+        if split_line[0] == "beq" or split_line[0] == "bne" or split_line[0] == "bgt" or split_line[0] == "blt" or split_line[0] == "b" or split_line[0] == "str" or split_line[0] == "ldr" or split_line[0] == "bl":
                 print(line)
                 continue
         for word in reversed(split_line):
@@ -379,7 +405,30 @@ def compile(code, program: Program):
                         print("ERROR: register count < 0")
                         exit(1)
                     break
-                    
+        
+        regex = re.compile(r"\b" + "notpush" + r"\b")
+        if regex.findall(line):
+            potential_push_registers = ["r0", "r1", "r2", "r3"]
+            regex = re.compile(r"\b" + "r[0-9]" + r"\b")
+            potential_push_registers.remove(re.findall(regex, line)[0])
+            
+            print("\tpush".ljust(10), " { ", end="")
+            for register in potential_push_registers:
+                print(register, end=" , ")
+            print("}")
+            continue
+    
+        regex = re.compile(r"\b" + "notpop" + r"\b")
+        if regex.findall(line):
+            potential_push_registers = ["r0", "r1", "r2", "r3"]
+            regex = re.compile(r"\b" + "r[0-9]" + r"\b")
+            potential_push_registers.remove(re.findall(regex, line)[0])
+            
+            print("\tpop".ljust(10), " { ", end="")
+            for register in potential_push_registers:
+                print(register, end=" , ")
+            print("}")
+            continue
         print(line)
 
 
@@ -400,7 +449,7 @@ if __name__ == '__main__':
 
     # with open("D:\\Nathan\\Bestanden\\ATP\\testfile.txt", "rb") as f:
     #     code = f.read().decode("utf-8")  
-    with open("/home/nathan/Documents/ATP/testfile.txt", "rb") as f:
+    with open("/home/nathan/Documents/ATP/random_functions.txt", "rb") as f:
         code = f.read().decode("utf-8")    
     # with open(sys.argv[1], "rb") as f:
     #     code = f.read().decode("utf-8")  

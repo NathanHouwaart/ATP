@@ -86,28 +86,14 @@ def cm0_postamble():
     print("\tpop".ljust(10), "{r7, pc}")
 
 
-def cm0_store(r1, stack_offset):
-    """
-    Pushes a registger to the stack
-    """
-    print(f"\tstr".ljust(10), f"{Registers.registers[r1]}, [sp, #{stack_offset}]")
-    Registers.free_register(r1)
-    
-
-def cm0_load(stack_offset):
-    """
-    Pops a register from the stack and allocates it to a register
-    """
-    # if(Registers.free[preferred_register]):
-    #     Registers.allocate_specific_register(preferred_register)
-    #     print(f"\tldr".ljust(10), f"{Registers.registers[preferred_register]}, [sp, #{stack_offset}]")
-    #     return preferred_register
-    # else:
-    reg = Registers.allocate_register()
-    print(f"\tldr".ljust(10), f"{Registers.registers[reg]}, [sp, #{stack_offset}]")
-    return reg
 
 ###############################################################################    
+
+def cm0_str(r1, stack_offset):
+    print(f"\tstr".ljust(10), f"{r1} , [sp, #{stack_offset}]")
+
+def cm0_ldr(r1, stack_offset):
+    print(f"\tldr".ljust(10), f"{r1} , [sp, #{stack_offset}]")
 
 def cm0_add(r1, r2, r3):
     print(f"\tadd".ljust(10), f"{r1} , {r2} , {r3} ")
@@ -140,7 +126,8 @@ def cm0_or(r1, r2, r3):
     print(f"\torr".ljust(10), f"{r1} , {r2} , {r3} ")
 
 def cm0_and(r1, r2, r3):
-    print(f"\tand".ljust(10), f"{r1} , {r2} , {r3} ")
+    print(f"\tand".ljust(10), f"{r2} , {r2} , {r3} ")
+    cm0_mov(r1, r2)
 
 def cm0_mov(r1, r2):
     print(f"\tmov".ljust(10), f"{r1} , {r2} ")
@@ -173,13 +160,15 @@ def cm0_create_label(label_name):
 
 
 def cm0_function_preamble(stack_size):
-    print("\tpush".ljust(10), "{lr, r4 - r7}")
+    print("\tpush".ljust(10), "{ lr , r4 - r7 }")
     if(stack_size):
-        print("\tsub".ljust(10),  "sp, sp, #4")
+        print("\tsub".ljust(10),  "sp , sp , #4")
         
     
 def cm0_function_postamble(func_name, stack_size):
     cm0_label(f"{func_name}_end")
     if(stack_size):
-        print("\tadd".ljust(10),  "sp, sp, #4")
-    print("\tpop".ljust(10),  "{pc, r4 - r7}")
+        print("\tadd".ljust(10),  " sp , sp , #4")
+    print("\tpop".ljust(10),  "{ pc , r4 - r7 }")
+    print()
+    print()
