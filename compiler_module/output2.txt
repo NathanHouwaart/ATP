@@ -1,0 +1,73 @@
+compile_FunctionDeclaration
+test_function:
+	push      {lr, r4 - r7}
+compile_IfStatement
+	mov       r2, #10
+	mov       literal_value_10_52_54_var1_res, #1
+	cmp       r2, r0
+	beq       literal_value_10_52_54_eq_var1_res_equal
+	mov       literal_value_10_52_54_var1_res, #0
+literal_value_10_52_54_eq_var1_res_equal:
+	cmp       literal_value_10_52_54_var1_res_reg, #0
+	beq       test_function_if_false_0_42_280
+	add       function_return_reg, r1, r0
+	mov       r0, function_return_reg_reg
+	b         test_function_end
+test_function_if_false_0_42_280:
+compile_IfStatement
+	mov       r3, #2
+	mov       literal_value_2_97_98_var2_res, #1
+	cmp       r3, r1
+	beq       literal_value_2_97_98_eq_var2_res_equal
+	mov       literal_value_2_97_98_var2_res, #0
+literal_value_2_97_98_eq_var2_res_equal:
+	cmp       literal_value_2_97_98_var2_res_reg, #0
+	beq       test_function_if_false_1_87_280
+	sub       function_return_reg, r1, r0
+	mov       r0, function_return_reg_reg
+	b         test_function_end
+test_function_if_false_1_87_280:
+compile_IfStatement
+	mov       r4, #2
+	mov       literal_value_2_141_142_var2_res, #1
+	cmp       r4, r1
+	beq       literal_value_2_141_142_eq_var2_res_equal
+	mov       literal_value_2_141_142_var2_res, #0
+literal_value_2_141_142_eq_var2_res_equal:
+	cmp       literal_value_2_141_142_var2_res_reg, #0
+	beq       test_function_if_false_2_131_280
+	sub       function_return_reg, r1, r0
+	mov       r0, function_return_reg_reg
+	b         test_function_end
+test_function_if_false_2_131_280:
+compile_IfStatement
+	mov       r5, #2
+	mov       literal_value_2_185_186_var2_res, #1
+	cmp       r5, r1
+	beq       literal_value_2_185_186_eq_var2_res_equal
+	mov       literal_value_2_185_186_var2_res, #0
+literal_value_2_185_186_eq_var2_res_equal:
+	cmp       literal_value_2_185_186_var2_res_reg, #0
+	beq       test_function_if_false_3_175_280
+	sub       function_return_reg, r1, r0
+	mov       r0, function_return_reg_reg
+	b         test_function_end
+test_function_if_false_3_175_280:
+compile_IfStatement
+	mov       r6, #1
+	mov       literal_value_1_243_244_var1_res, #1
+	cmp       r6, r0
+	beq       literal_value_1_243_244_eq_var1_res_equal
+	mov       literal_value_1_243_244_var1_res, #0
+literal_value_1_243_244_eq_var1_res_equal:
+	cmp       literal_value_1_243_244_var1_res_reg, #0
+	beq       test_function_if_false_4_233_278
+	add       function_return_reg, r1, r0
+	mov       r0, function_return_reg_reg
+	b         test_function_end
+test_function_if_false_4_233_278:
+compile_VariableDeclaration
+	add       var2_var1_res, r1, r0
+	mov       r7, #44
+	add       literal_value_44_327_329_var2_var1_res_res, r7, var2_var1_res_reg
+No registers left

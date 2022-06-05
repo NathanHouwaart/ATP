@@ -6,7 +6,6 @@
 @date 11-05-2021
 """
 
-from tkinter.tix import IMMEDIATE
 from misc.node_types import Node
 from typing import Tuple, Callable, Optional, Dict,  Any, List
 try : from token_types import *

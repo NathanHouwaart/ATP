@@ -5,7 +5,10 @@ import sys
 import os
 import time
 from itertools import islice
+
+from numpy import outer
 from cortexm0 import *
+import io
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -20,8 +23,8 @@ from arm_registers import *
 from compiler_data_structures import *       
 from cortexm0 import *
 
-RETURN_REGISTER      = "r0"
-CMP_RESULT_REGISTER  = "r4"
+RETURN_REGISTER = "r0"
+CMP_I_REGISTER  = "r4"
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -74,7 +77,7 @@ def add_function_arguments_to_symbol_table(symbol_table: SymbolTable, arguments:
 
 
 def compile_FunctionDeclaration(code: str, node: FunctionDeclaration, symbol_table: SymbolTable, call_stack):
-    print("compile_FunctionDeclaration")
+    # print("compile_FunctionDeclaration")
     
     # 1. Check if identifier is defined
     symbol_info = symbol_table_get(symbol_table, node.id_)                              # Get information from symbol table
@@ -94,11 +97,10 @@ def compile_FunctionDeclaration(code: str, node: FunctionDeclaration, symbol_tab
     
     # 5. Recursively Add parameters to function symbol table
     function_symbol_table = add_function_arguments_to_symbol_table(function_symbol_table, node.params_)   # Add parameters to symbol table
-    # print(function_symbol_table)
-    # exit()
+    
     # 6. Reserve registers for arguments
-    Registers.free_all_registers()                              # In a function we can free all registers (as long as we push R4-R7 to the stack)
-    Registers.allocate_register_range(0, len(node.params_))     # Allocate a register for each function parameter
+    Registers.free_all_registers()
+    # Registers.allocate_register_range(0, len(node.params_))
 
     # 7. Write assebmly code for function
     cm0_create_label(node.id_)                                                                      # Create label for branch
@@ -114,6 +116,7 @@ def compile_ReturnStatement(code: str, node: ReturnStatement, symbol_table: Symb
     # print("compile_ReturnStatement")
     result, symbol_table = symbol_table_get_and_del_return_symbol(compile_loop(code, [node.argument_], symbol_table, call_stack + [node]))
     cm0_mov("r0", result[0].symbol_register)
+    # print("\n\n\n\n")
     if(type(call_stack[0]) == FunctionDeclaration and check_present(call_stack, IfStatement)):
         cm0_b(call_stack[0].id_ + "_end")
     return symbol_table
@@ -158,20 +161,20 @@ def compile_BinaryExpression(code: str, node: BinaryExpression, symbol_table: Sy
     if(type(call_stack[-1]) == VariableDeclaration):
         result_reg_name = call_stack[-1].id_ + "_reg"
     if(type(call_stack[-1]) == ReturnStatement):
-        result_reg_name = "function_return_reg"
+        result_reg_name = "function_return" + "_reg"
     else:
-        result_reg_name = right.symbol_name + "_" + left.symbol_name + "_res"
+        result_reg_name = right.symbol_name + "_" + left.symbol_name + "_res" + "_reg"
     
     if operator == TokenTypes.PLUS:
         result_register = cm0_add(result_reg_name,  right.symbol_register, left.symbol_register)
-        symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register + "_reg"))
+        symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register))
     elif operator == TokenTypes.MINUS: 
         result_register = cm0_sub(result_reg_name,  right.symbol_register, left.symbol_register)
-        symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register + "_reg"))
+        symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register))
         # elif operator == TokenTypes.DIVIDE        : symbol_table_add_return_symbol(symbol_table, cm0_div(left[0], right[0], symbol_table))
     elif operator == TokenTypes.MULTIPLY: 
         result_register = cm0_mul(result_reg_name,  right.symbol_register, left.symbol_register)
-        symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register + "_reg"))
+        symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register))
     elif operator == TokenTypes.IS_EQUAL:
         branch_label_name = right.symbol_name + "_eq_" + left.symbol_name + "_res_equal"
         cm0_movi(result_reg_name, 1)
@@ -180,7 +183,7 @@ def compile_BinaryExpression(code: str, node: BinaryExpression, symbol_table: Sy
         cm0_movi(result_reg_name, 0)
         cm0_label(branch_label_name)
         result_register = result_reg_name
-        symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register + "_reg"))        
+        symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register))        
     elif operator == TokenTypes.GREATER_THAN  : 
         branch_label_name = right.symbol_name + "_gt_" + left.symbol_name + "_res_greater_than"
         cm0_movi(result_reg_name, 1)
@@ -189,7 +192,7 @@ def compile_BinaryExpression(code: str, node: BinaryExpression, symbol_table: Sy
         cm0_movi(result_reg_name, 0)
         cm0_label(branch_label_name)
         result_register = result_reg_name
-        symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register + "_reg"))        
+        symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register))        
     elif operator == TokenTypes.SMALLER_THAN  : 
         branch_label_name = right.symbol_name + "_lt_" + left.symbol_name + "_res_less_than"
         cm0_movi(result_reg_name, 1)
@@ -198,19 +201,19 @@ def compile_BinaryExpression(code: str, node: BinaryExpression, symbol_table: Sy
         cm0_movi(result_reg_name, 0)
         cm0_label(branch_label_name)
         result_register = result_reg_name
-        symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register + "_reg"))        
+        symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register))        
 
     elif operator == TokenTypes.AND:
         result_register = cm0_and(result_reg_name,  right.symbol_register, left.symbol_register)
-        symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register + "_reg"))
+        symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register))
     elif operator == TokenTypes.OR: 
         result_register = cm0_or(result_reg_name,  right.symbol_register, left.symbol_register)
-        symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register + "_reg"))
+        symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register))
      
     return symbol_table
 
 def compile_IfStatement(code: str, node: Identifier, symbol_table: SymbolTable, call_stack: List[Node]):
-    print("compile_IfStatement")
+    # print("compile_IfStatement")
     
     test_result, symbol_table = symbol_table_get_and_del_return_symbol(compile_loop(code, [node.test_], symbol_table, call_stack + [node]))
     cm0_cmp(test_result[0].symbol_register, "#0")
@@ -242,9 +245,9 @@ def compile_Identifier(code: str, node: Identifier, symbol_table: SymbolTable, c
 
 
 def compile_VariableDeclaration(code: str, node: VariableDeclaration, symbol_table: SymbolTable, call_stack):
-    print("compile_VariableDeclaration")
+    # print("compile_VariableDeclaration")
     # 1. Initialize variable
-    symbol_table = compile_loop(code, [node.init_], symbol_table, call_stack + [node])  # Compile the initializer 
+    symbol_table = compile_loop(code, [node.init_], symbol_table, call_stack + [node])                       # Compile the initializer 
     return_symbol, symbol_table = symbol_table_get_and_del_return_symbol(symbol_table)  # Get the register that the initializer is stored in
     return_symbol = return_symbol[0]                                                    # Get the register number                   
     
@@ -268,9 +271,8 @@ def compile_VariableDeclaration(code: str, node: VariableDeclaration, symbol_tab
  
 def compile_Literal(code: str, node: Literal, symbol_table: SymbolTable, call_stack):
     literal_id = "literal_value_" + node.raw_ + "_" + node_range_to_label(node)
-    allocated_register = Registers.allocate_register()
-    symbol = LiteralSymbol(literal_id, SymbolType.LITERAL, allocated_register)
-    cm0_movi(allocated_register, node.value_)
+    cm0_movi(literal_id + "_reg", node.value_)
+    symbol = LiteralSymbol(literal_id, SymbolType.LITERAL, literal_id + "_reg")
     symbol_table = symbol_table_set(symbol_table, literal_id, symbol)
     symbol_table = symbol_table_add_return_symbol(symbol_table, symbol)
     return symbol_table
@@ -294,12 +296,114 @@ def compile_loop(code, program_nodes: List[Node], symbol_table: SymbolTable, cal
     
     return compile_loop(code, tail, symbol_table, call_stack)
 
+def regnames_count(code, register_count: Dict[str, int]):
+    code = code.split("\n")
+    code_lines = []
+    in_function = False
+
+    for line in code:
+        if(re.findall(r"_function:",line) and not in_function):
+            in_function = True
+            functions = []
+            continue
+        if line == "":
+            continue
+        code_lines.append(line.replace(',', ' ').split())
+
+    for code_line in code_lines:
+        print(code_line)
+        if(code_line[0] == "b" or len(code_line) == 1 or code_line[0] == "push" or code_line[0] == "pop" or code_line[0] == "beq"
+            or code_line[0] == "bne" or code_line[0] == "bgt" or code_line[0] == "blt"):
+            del code_line
+            continue
+        del code_line[0]
+        
+        for register in code_line:
+            if(register[0] == '#'):
+                continue
+            if register in register_count:
+                register_count[register][0] += 1
+            else:
+                register_count[register] = [1, None]
+
+    for register in register_count:
+        print(register.ljust(50),register_count[register])
+    return register_count
 
 def compile(code, program: Program):
     symbol_table = SymbolTable(symbols={}, parent=None, return_symbols=[], return_stop=False, stack_variables=0)
     symbol_table = symbol_table_set(symbol_table, "🖨", FunctionSymbol("__aeabi_idiv", SymbolType.FUNCTION, 1))
-    compile_loop(code, program.body_, symbol_table, [])
-    print()
+    
+    old_stdout = sys.stdout
+    new_stdout = io.StringIO()
+    sys.stdout = new_stdout
+    symbol_table = compile_loop(code, program.body_, symbol_table, [])
+    pseudo_output = new_stdout.getvalue()
+    sys.stdout = old_stdout
+    
+    print(pseudo_output)
+
+
+    register_count = {}
+    register_count = regnames_count(pseudo_output, register_count)
+    
+    # split all lines and registers
+    Registers.free_all_registers()
+    for register in Registers.register_status:
+        if register in register_count:
+            Registers.register_status[register] = RegisterStatus.ALLOCATED
+            register_count[register][1] = register
+    code_lines = pseudo_output.split("\n")
+    tmp = []
+    for code_line in code_lines:
+        if ":" in code_line:
+            del code_line
+            continue
+        code_line = (code_line.split())
+        code_line = list(filter(lambda val: val !=  ",", code_line))
+        tmp.append(code_line)
+    code_lines = tmp
+
+    for code_line in code_lines:
+        if not code_line:
+            del code_line
+            continue
+        if(code_line[0] == "b" or len(code_line) == 1 or code_line[0] == "push" or code_line[0] == "pop" or code_line[0] == "beq"
+            or code_line[0] == "bne" or code_line[0] == "bgt" or code_line[0] == "blt"):
+            del code_line
+            continue
+    
+    for code_line in code_lines:
+        print(code_line)
+    # AFter psuedocode is split, decide what operation it is and depending on it, read from right to left or left to right
+    for line in code_lines:
+            
+            for register in register_count:
+                string_thing = r" " + register + r" "
+                regex = re.compile(string_thing)
+                if regex.findall(line):
+                    if(register_count[register][1] == None):
+                        allocated_reg = Registers.allocate_register()
+                        register_count[register][1] = allocated_reg
+                        line = re.sub(regex, " " + allocated_reg + " ", line)
+                    else:
+                        line = re.sub(regex, " " + register_count[register][1] + " ", line)
+                    register_count[register][0] -= 1
+                    if(register_count[register][0] == 0):
+                        Registers.free_register(register_count[register][1])
+                        register_count[register][1] = None
+                    if(register_count[register][0] < 0):
+                        print("ERROR: register count < 0")
+                        exit(1)
+
+            
+    
+    
+    # remove all empty lines
+    
+    # remove pop and push
+    
+    
 
 
 if __name__ == '__main__':
