@@ -1,13 +1,6 @@
-from ast import Return, literal_eval, operator
-from inspect import stack
-from pyclbr import Function
 import sys
 import os
 import time
-from itertools import islice
-from cv2 import split
-
-from numpy import outer
 from cortexm0 import *
 import io
 
@@ -61,7 +54,7 @@ def calculate_num_nodes(code: str, node: Node, symbol_table: SymbolTable):
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def add_function_arguments_to_symbol_table(symbol_table: SymbolTable, arguments: list[Literal], register_loc = 0):
+def add_function_arguments_to_symbol_table(symbol_table: SymbolTable, arguments: List[Literal], register_loc = 0):
     if len(arguments) == 0:
         return symbol_table
     
@@ -159,9 +152,10 @@ def compile_BinaryExpression(code: str, node: BinaryExpression, symbol_table: Sy
     left  = left[0]
     # print(right, left)
 
+
     if(type(call_stack[-1]) == VariableDeclaration):
         result_reg_name = call_stack[-1].id_ + "_reg"
-    if(type(call_stack[-1]) == ReturnStatement):
+    elif(type(call_stack[-1]) == ReturnStatement):
         result_reg_name = "function_return" + "_reg"
     else:
         result_reg_name = right.symbol_name + "_" + left.symbol_name + "_res" + "_reg"
@@ -170,7 +164,7 @@ def compile_BinaryExpression(code: str, node: BinaryExpression, symbol_table: Sy
         result_register = cm0_add(result_reg_name,  right.symbol_register, left.symbol_register)
         symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register))
     elif operator == TokenTypes.MINUS: 
-        result_register = cm0_sub(result_reg_name,  right.symbol_register, left.symbol_register)
+        result_register = cm0_sub(result_reg_name,  left.symbol_register, right.symbol_register)
         symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_register, SymbolType.VARIABLE, result_register))
         # elif operator == TokenTypes.DIVIDE        : symbol_table_add_return_symbol(symbol_table, cm0_div(left[0], right[0], symbol_table))
     elif operator == TokenTypes.MULTIPLY: 
@@ -188,7 +182,7 @@ def compile_BinaryExpression(code: str, node: BinaryExpression, symbol_table: Sy
     elif operator == TokenTypes.GREATER_THAN  : 
         branch_label_name = right.symbol_name + "_gt_" + left.symbol_name + "_res_greater_than"
         cm0_movi(result_reg_name, 1)
-        cm0_cmp(right.symbol_register, left.symbol_register)
+        cm0_cmp(left.symbol_register, right.symbol_register)
         cm0_bgt(branch_label_name)
         cm0_movi(result_reg_name, 0)
         cm0_label(branch_label_name)
@@ -197,7 +191,7 @@ def compile_BinaryExpression(code: str, node: BinaryExpression, symbol_table: Sy
     elif operator == TokenTypes.SMALLER_THAN  : 
         branch_label_name = right.symbol_name + "_lt_" + left.symbol_name + "_res_less_than"
         cm0_movi(result_reg_name, 1)
-        cm0_cmp(right.symbol_register, left.symbol_register)
+        cm0_cmp(left.symbol_register, right.symbol_register)
         cm0_blt(branch_label_name)
         cm0_movi(result_reg_name, 0)
         cm0_label(branch_label_name)
@@ -215,18 +209,25 @@ def compile_BinaryExpression(code: str, node: BinaryExpression, symbol_table: Sy
 
 def compile_IfStatement(code: str, node: Identifier, symbol_table: SymbolTable, call_stack: List[Node]):
     # print("compile_IfStatement")
-    
+    if_end_label = call_stack[0].id_ + "_if_end_" + str(check_present(call_stack, IfStatement)) + "_" + node_range_to_label(node)
     test_result, symbol_table = symbol_table_get_and_del_return_symbol(compile_loop(code, [node.test_], symbol_table, call_stack + [node]))
     cm0_cmp(test_result[0].symbol_register, "#0")
     if type(call_stack[0]) == FunctionDeclaration:
         branch_label = call_stack[0].id_ + "_if_false_" + str(check_present(call_stack, IfStatement)) + "_" + node_range_to_label(node)
-        cm0_beq(branch_label)
+        if node.alternate_:
+            cm0_beq(branch_label)
+        else:
+            cm0_beq(if_end_label)    
     else:
         raise Exception("Code outside of function not supported")
     test_result, symbol_table = symbol_table_get_and_del_return_symbol(compile_loop(code, [node.consequent_], symbol_table, call_stack + [node]))
-    cm0_label(branch_label)
     if(node.alternate_):
+        cm0_b(if_end_label)
+        cm0_label(branch_label)
         test_result, symbol_table = symbol_table_get_and_del_return_symbol(compile_loop(code, [node.alternate_], symbol_table, call_stack + [node] ))
+        cm0_label(if_end_label)
+    else:
+        cm0_label(if_end_label)
     return symbol_table
 
 def present(arr, v): 
@@ -247,31 +248,34 @@ def compile_Identifier(code: str, node: Identifier, symbol_table: SymbolTable, c
 
 def compile_VariableDeclaration(code: str, node: VariableDeclaration, symbol_table: SymbolTable, call_stack):
     # print("compile_VariableDeclaration")
-    # 1. Initialize variable
-    symbol_table = compile_loop(code, [node.init_], symbol_table, call_stack + [node])                       # Compile the initializer 
-    return_symbol, symbol_table = symbol_table_get_and_del_return_symbol(symbol_table)  # Get the register that the initializer is stored in
-    return_symbol = return_symbol[0]                                                    # Get the register number                   
-    
     # 2. Check if variable is already defined
     symbol = symbol_table_get(symbol_table, node.id_)                                   # Get information from symbol table
     if symbol != None and type(symbol) != VairableSymbol:                               # If a symbol is found, check if it is a variable
         generate_error_message(node, code, f"Redefinition of {node.id_}", True)         # If not, generate error
+
+    # 1. Initialize variable
+    symbol_table = compile_loop(code, [node.init_], symbol_table, call_stack + [node])                       # Compile the initializer 
+    return_symbol, symbol_table = symbol_table_get_and_del_return_symbol(symbol_table)  # Get the register that the initializer is stored in
+    return_symbol = return_symbol[0]                                                    # Get the register number         
     
-    # 4a. if variable is already defined
-    if symbol != None:                                                             # If a symbol is found, ask information about the symbol
-        variable_stack_offset =  symbol_table_get_stack_variable_amt(symbol_table) * 4  # Get stack offset of variable
-        cm0_store(return_symbol, variable_stack_offset)                                 # Overwrite the register that is already on the stack
     
-    # 4b. if variable is not defined. define it
-    else:
-        symbol_table = symbol_table_set(symbol_table, node.id_, 
-                                        VairableSymbol(node.id_, SymbolType.VARIABLE, node.id_ + "_reg"))     # Add new variable to symbol table with stack offset
+    # # 4a. if variable is already defined
+    # if symbol != None:                                                             # If a symbol is found, ask information about the symbol
+        
+    
+    # # 4b. if variable is not defined. define it
+    # else:
+    symbol_table = symbol_table_set(symbol_table, node.id_, 
+                                    VairableSymbol(node.id_, SymbolType.VARIABLE, node.id_ + "_reg"))     # Add new variable to symbol table with stack offset
     return symbol_table
  
  
  
 def compile_Literal(code: str, node: Literal, symbol_table: SymbolTable, call_stack):
-    literal_id = "literal_value_" + node.raw_ + "_" + node_range_to_label(node)
+    if(type(call_stack[-1]) == VariableDeclaration):
+        literal_id = call_stack[-1].id_
+    else:
+        literal_id = "literal_value_" + node.raw_ + "_" + node_range_to_label(node)
     cm0_movi(literal_id + "_reg", node.value_)
     symbol = LiteralSymbol(literal_id, SymbolType.LITERAL, literal_id + "_reg")
     symbol_table = symbol_table_set(symbol_table, literal_id, symbol)
@@ -394,9 +398,10 @@ if __name__ == '__main__':
     #     print("Expected filename")
     #     exit()
 
-    with open("D:\\Nathan\\Bestanden\\ATP\\testfile.txt", "rb") as f:
-        code = f.read().decode("utf-8")  
-        
+    # with open("D:\\Nathan\\Bestanden\\ATP\\testfile.txt", "rb") as f:
+    #     code = f.read().decode("utf-8")  
+    with open("/home/nathan/Documents/ATP/testfile.txt", "rb") as f:
+        code = f.read().decode("utf-8")    
     # with open(sys.argv[1], "rb") as f:
     #     code = f.read().decode("utf-8")  
 

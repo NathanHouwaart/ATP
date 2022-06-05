@@ -1,0 +1,35 @@
+    📁 test_variable = 2 * < < var1 + var2 > + 44 >
+    📁 test_variable2 = test_variable * < 3 + var2 >
+    📁 assert_variable = test_variable2 ▼ test_variable
+    ⮐ test_variable == < test_variable2 ▲ assert_variable > ⮐
+
+    ƒ test_function | α var1 | α var2 ––>
+    ? var1 == 10 ––>
+        ⮐ var1 + var2 ⮐
+    ⁈ var2 == 2 ––>
+        ⮐ var1 - var2 ⮐
+    ⁈ var2 == 2 ––>
+        ⮐ var1 - var2 ⮐
+    ⁈ var2 == 2 ––>
+        ⮐ var1 - var2 ⮐
+    ⁇ ––>
+        ? var1 == 1 ––>
+            ⮐ var1 + var2 ⮐ ¿ ¿
+
+            
+    📁 test_variable = 2 * < < var1 + var2 > + 44 >
+    📁 test_variable2 = test_variable * < 3 + var2 >
+    📁 assert_variable = test_variable2 ▼ test_variable
+    ⮐ test_variable == < test_variable2 ▲ assert_variable > ⮐
+––
+
+
+
+ƒ test_function_if | α var1 | α var2 ––>
+    📁 test_variable = var1 + var2
+    ? test_variable ▲ 100 ––>
+        📁 test_variable = 142
+    ⁇ ––>
+        📁 test_variable = 42 ¿
+    ⮐ test_variable ⮐ 
+––
