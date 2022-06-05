@@ -5,6 +5,7 @@ import sys
 import os
 import time
 from itertools import islice
+from cv2 import split
 
 from numpy import outer
 from cortexm0 import *
@@ -297,38 +298,26 @@ def compile_loop(code, program_nodes: List[Node], symbol_table: SymbolTable, cal
     return compile_loop(code, tail, symbol_table, call_stack)
 
 def regnames_count(code, register_count: Dict[str, int]):
-    code = code.split("\n")
-    code_lines = []
-    in_function = False
-
     for line in code:
-        if(re.findall(r"_function:",line) and not in_function):
-            in_function = True
-            functions = []
-            continue
-        if line == "":
-            continue
-        code_lines.append(line.replace(',', ' ').split())
-
-    for code_line in code_lines:
-        print(code_line)
-        if(code_line[0] == "b" or len(code_line) == 1 or code_line[0] == "push" or code_line[0] == "pop" or code_line[0] == "beq"
-            or code_line[0] == "bne" or code_line[0] == "bgt" or code_line[0] == "blt"):
-            del code_line
-            continue
-        del code_line[0]
-        
-        for register in code_line:
-            if(register[0] == '#'):
+        for i in range(1, len(line)):
+            if line[i][0] == "#":
                 continue
-            if register in register_count:
-                register_count[register][0] += 1
+            if line[i] in register_count:
+                register_count[line[i]][0] += 1
             else:
-                register_count[register] = [1, None]
-
-    for register in register_count:
-        print(register.ljust(50),register_count[register])
+                register_count[line[i]] = [1, None]
     return register_count
+
+def format_pseudo_output(psuedo_output: str):
+    formatted_psuedo_output = []
+    for line in psuedo_output.split("\n"):
+        if(line == "" or ":" in line):
+            continue
+        line = line.replace(',', ' ').split()
+        if line[0] == "push" or  line[0] == "pop" or line[0] ==  "beq" or line[0] ==  "b"  or line[0] == "bne" or line[0] == line or line[0] == "bgt" or line[0] == "blt":
+            continue
+        formatted_psuedo_output.append(line)
+    return formatted_psuedo_output
 
 def compile(code, program: Program):
     symbol_table = SymbolTable(symbols={}, parent=None, return_symbols=[], return_stop=False, stack_variables=0)
@@ -342,46 +331,36 @@ def compile(code, program: Program):
     sys.stdout = old_stdout
     
     print(pseudo_output)
-
+    formatted_pseudo_output = format_pseudo_output(pseudo_output)
+    # for line in formatted_pseudo_output:
+    #     print(line)
 
     register_count = {}
-    register_count = regnames_count(pseudo_output, register_count)
-    
-    # split all lines and registers
+    register_count = regnames_count(formatted_pseudo_output, register_count)
+    print()
+    for register in register_count:
+        print(f"{register}".ljust(60), f"{register_count[register]}")
+    print()
+
+    # Set function parameters to allcoated state
     Registers.free_all_registers()
     for register in Registers.register_status:
         if register in register_count:
             Registers.register_status[register] = RegisterStatus.ALLOCATED
             register_count[register][1] = register
-    code_lines = pseudo_output.split("\n")
-    tmp = []
-    for code_line in code_lines:
-        if ":" in code_line:
-            del code_line
-            continue
-        code_line = (code_line.split())
-        code_line = list(filter(lambda val: val !=  ",", code_line))
-        tmp.append(code_line)
-    code_lines = tmp
-
-    for code_line in code_lines:
-        if not code_line:
-            del code_line
-            continue
-        if(code_line[0] == "b" or len(code_line) == 1 or code_line[0] == "push" or code_line[0] == "pop" or code_line[0] == "beq"
-            or code_line[0] == "bne" or code_line[0] == "bgt" or code_line[0] == "blt"):
-            del code_line
-            continue
-    
-    for code_line in code_lines:
-        print(code_line)
-    # AFter psuedocode is split, decide what operation it is and depending on it, read from right to left or left to right
-    for line in code_lines:
             
+    
+    for line in pseudo_output.split("\n"):
+        split_line = line.split()
+        if not split_line:
+            continue
+        if split_line[0] == "beq" or split_line[0] == "bne" or split_line[0] == "bgt" or split_line[0] == "blt" or split_line[0] == "b":
+                print(line)
+                continue
+        for word in reversed(split_line):
             for register in register_count:
-                string_thing = r" " + register + r" "
-                regex = re.compile(string_thing)
-                if regex.findall(line):
+                regex = re.compile(r"\b" + register + r"\b")
+                if regex.match(word):
                     if(register_count[register][1] == None):
                         allocated_reg = Registers.allocate_register()
                         register_count[register][1] = allocated_reg
@@ -395,6 +374,10 @@ def compile(code, program: Program):
                     if(register_count[register][0] < 0):
                         print("ERROR: register count < 0")
                         exit(1)
+                    break
+                    
+        print(line)
+
 
             
     
@@ -411,7 +394,7 @@ if __name__ == '__main__':
     #     print("Expected filename")
     #     exit()
 
-    with open("/Users/nathanhouwaart/Documents/ATP/testfile.txt", "rb") as f:
+    with open("D:\\Nathan\\Bestanden\\ATP\\testfile.txt", "rb") as f:
         code = f.read().decode("utf-8")  
         
     # with open(sys.argv[1], "rb") as f:
