@@ -12,9 +12,8 @@
 
 
 ƒ random_function | α var1 ––>
-    📁 solution = 0
     📁 test_variable = ✆ fibonacci var1 ✆
-    ? < test_variable ▲ 100 > ––>
+    ? < test_variable ▲ 100 > ∨ < ✆ even test_variable ✆ > ––>
         📁 solution = 42
     ⁇ ––>
         📁 solution = 2 ¿
