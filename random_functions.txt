@@ -10,6 +10,13 @@
     ⮐ ✆ odd n-1 ✆ ⮐
 ––
 
+ƒ sum | α var1 | α var2 | α var3 ––>
+    ⮐ var1 + var2 + var3 ⮐
+–– 
+
+ƒ test_test ––>
+    ⮐ ✆ sum 10 | 20 | 30 ✆ ⮐
+–– 
 
 ƒ random_function | α var1 ––>
     📁 test_variable = ✆ fibonacci var1 ✆
