@@ -658,7 +658,7 @@ def regnames_count(
 
 
 def format_pseudo_output(
-    psuedo_code: str
+    line: str
 ) -> List[List[str]]:
     """Function formats the pseudo code output in a two dimentional list of lines whith keywords and registers
     
@@ -668,15 +668,13 @@ def format_pseudo_output(
     Returns:
         A two dimentional list of lines with keywords and registers
     """
-    formatted_psuedo_code = []
-    for line in psuedo_code.split("\n"):
-        if(line == "" or ":" in line or re.findall(r"\blr\b", line) or re.findall(r"\bpc\b", line)):
-            continue
-        line = line.replace(',', ' ').split()
-        if line[0] ==  "beq" or line[0] ==  "b"  or line[0] == "bne" or line[0] == line or line[0] == "bgt" or line[0] == "blt" or line[0] == "str" or line[0] == "ldr" or line[0] == "bl" or line[0] == ".global":
-            continue
-        formatted_psuedo_code.append(line)
-    return formatted_psuedo_code
+    
+    if(line == "" or ":" in line or re.findall(r"\blr\b", line) or re.findall(r"\bpc\b", line)):
+        return None
+    line = line.replace(',', ' ').split()
+    if line[0] ==  "beq" or line[0] ==  "b"  or line[0] == "bne" or line[0] == line or line[0] == "bgt" or line[0] == "blt" or line[0] == "str" or line[0] == "ldr" or line[0] == "bl" or line[0] == ".global":
+        return None
+    return line
 
 
 
@@ -687,7 +685,7 @@ def pseudo_compile(code: str, program: Program):
     The steps taken are:
         1. Create a new symbol table for the program
         2. Loop over every node in the program
-        3. Compile the node into pseudo code
+        3. Compile every node into pseudo code
 
     args:
         code:    The code to compile
@@ -699,8 +697,20 @@ def pseudo_compile(code: str, program: Program):
     
     # 2. Pseudo compile the program
     symbol_table, pseudo_code = pseudo_compile_loop(code, program.body_, symbol_table, [], "")
+    return pseudo_code
+
+
+def compile_pseudo_code(code: str, pseudo_code: str):
+    """
+    Compile the generated pseudo code into actual Cortex-m0 assembly code.
     
-    formatted_pseudo_output = format_pseudo_output(pseudo_code)
+    Args:
+        code:           The code that is being lexed, parsed, and compiled.
+        pseudo_code:    The pseudo code to compile
+    """
+
+    formatted_pseudo_output = map(format_pseudo_output, pseudo_code.split("\n"))
+
     # for line in formatted_pseudo_output:
     #     print(line)
 
