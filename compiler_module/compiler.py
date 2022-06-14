@@ -747,7 +747,14 @@ def allocate_function_registers(
     register_count: Dict[str, int]
 )-> Dict[str, int]:
     """
-    Function allocates space in register status objecct
+    Function allocates function registers and saves them in the register_count dictionary.
+
+    Args:
+        register: The register to allocate
+        register_count: The dictionary containing the number of times each register is used.
+
+    Returns:
+        The updated register_count dictionary.
     """
     if register in register_count:
         Registers.register_status[register] = RegisterStatus.ALLOCATED
@@ -756,7 +763,7 @@ def allocate_function_registers(
 
 
 def replace_pseudo_register_with_real_register(
-    code_line : str, #line
+    code_line : str, 
     word_to_replace : str,
     register_count : Dict[str, int],
     register_list: List[str]
