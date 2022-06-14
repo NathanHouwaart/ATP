@@ -646,20 +646,41 @@ def pseudo_compile_loop(
 
 
 def regnames_count_predicate(
-    code_linse_segment:str,
+    register_name:str,
     register_count: Dict[str, int]
 ) -> Dict[str, int]:
-    if code_linse_segment in register_count:
-        register_count[code_linse_segment][0] +=1
+    """
+    Function to increase or add a new pseudo register to the register_count dictionary.
+
+    Args:
+        register_name: The name of the register to increase or add.
+        register_count: The dictionary containing the number of times each register is used.
+    
+    Returns:
+        The updated register_count dictionary.
+    """
+    if register_name in register_count:
+        register_count[register_name][0] +=1
     else:
-        register_count[code_linse_segment] = [1, None]
+        register_count[register_name] = [1, None]
     return register_count
+
 
 
 def regnames_count_recursive(
     formatted_code: List[Any],
     register_count: Dict[str, int] = {}
 ) -> Dict[str, int]:
+    """
+    Function recursively traverses the formatted_code list and increase or adds a new pseudo register to the register_count dictionary.
+    
+    Args:
+        formatted_code: Lines of pseudo code that are to be counted
+        register_count: The dictionary containing the number of times each register is used.
+
+    Returns:
+        The updated register_count dictionary.
+    """
     if len(formatted_code) == 0:
         return register_count
     
@@ -668,6 +689,7 @@ def regnames_count_recursive(
     register_count  = list(map(lambda x, y=register_count: regnames_count_predicate(x, y), filtered))[0]
 
     return regnames_count_recursive(tail, register_count)
+
 
 
 def format_pseudo_output(
@@ -691,7 +713,10 @@ def format_pseudo_output(
 
 
 
-def pseudo_compile(code: str, program: Program):
+def pseudo_compile(
+    code: str, 
+    program: Program
+) -> str:
     """
     Pseudo compile the program into CM0 code.
 
@@ -700,9 +725,12 @@ def pseudo_compile(code: str, program: Program):
         2. Loop over every node in the program
         3. Compile every node into pseudo code
 
-    args:
+    Args:
         code:    The code to compile
         program: The AST of the program to compile
+    
+    Returns:
+        The pseudo code of the program
     """
 
     # 1. Create a symbol table for the program
@@ -711,6 +739,7 @@ def pseudo_compile(code: str, program: Program):
     # 2. Pseudo compile the program
     symbol_table, pseudo_code = pseudo_compile_loop(code, program.body_, symbol_table, [], "")
     return pseudo_code
+
 
 
 def allocate_function_registers(
@@ -931,7 +960,7 @@ def compile_pseudo_code(
     # Set function parameters to allcoated state
     Registers.free_all_registers()
 
-    register_count          = list(map(lambda x, y=register_count: allocate_function_registers(x, y), Registers.register_status))[0]
+    register_count          = list(map(lambda x, y=register_count: allocate_function_registers(x, y), cm0_regisers.register_status))[0]
     compiled_code           = compile_pseudo_code_loop(pseudo_code.split("\n"), register_count)
     return compiled_code
     

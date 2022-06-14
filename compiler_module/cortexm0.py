@@ -12,15 +12,15 @@ class RegisterStatus(Enum):
     FREE = 0
     ALLOCATED = 1
 
-class CM0_Registers(Enum):
-    r0 = "r0"
-    r1 = "r1"
-    r2 = "r2"
-    r3 = "r3"
-    r4 = "r4"
-    r5 = "r5"
-    r6 = "r6"
-    r7 = "r7"
+# class CM0_Registers(Enum):
+#     r0 = "r0"
+#     r1 = "r1"
+#     r2 = "r2"
+#     r3 = "r3"
+#     r4 = "r4"
+#     r5 = "r5"
+#     r6 = "r6"
+#     r7 = "r7"
 
 
 class Registers:
@@ -71,19 +71,6 @@ class Registers:
         for i in range(start, end):
             Registers.register_status[Registers.register_list[i]] = RegisterStatus.ALLOCATED
 
-
-# Cortex-M0 assembly functions
-
-def cm0_preamble():
-    Registers.free_all_registers()
-    print("main:")
-    print("\tpush".ljust(10), "{r7, lr}")
-    print("\tadd".ljust(10),  "r7, sp, #0")
-    
-
-def cm0_postamble():
-    print("\tmov".ljust(10), "sp, r7")
-    print("\tpop".ljust(10), "{r7, pc}")
 
 
 
