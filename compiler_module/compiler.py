@@ -1,6 +1,10 @@
+from atexit import register
+from posixpath import split
 import sys
 import os
 import time
+
+from httplib2 import FailedToDecompressContent
 
 from cortexm0 import *
 import io
@@ -388,7 +392,7 @@ def pseudo_compile_BinaryExpression(
         symbol_table = symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_reg_name, SymbolType.VARIABLE, result_reg_name))
 
     elif operator == TokenTypes.MULTIPLY: 
-        pseudo_code  = cm0_mul(result_reg_name, right.symbol_register, left.symbol_register)
+        pseudo_code  = cm0_mul(pseudo_code, result_reg_name, right.symbol_register, left.symbol_register)
         symbol_table = symbol_table_add_return_symbol(symbol_table, VairableSymbol(result_reg_name, SymbolType.VARIABLE, result_reg_name))
 
     elif operator == TokenTypes.IS_EQUAL:
@@ -595,7 +599,7 @@ def pseudo_compile_Literal(
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-# ------------------------------------------------- Compile Loop -------------------------------------------------------
+# -------------------------------------------------- Pseudo Loop -------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
 
 def pseudo_compile_loop(
@@ -636,25 +640,34 @@ def pseudo_compile_loop(
     
     return pseudo_compile_loop(code, tail, symbol_table, call_stack, pseudo_code)
 
+# ----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------- Compile Pseudo Code --------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 
 
-def regnames_count(
-    code: str, 
+def regnames_count_predicate(
+    code_linse_segment:str,
+    register_count: Dict[str, int]
+) -> Dict[str, int]:
+    if code_linse_segment in register_count:
+        register_count[code_linse_segment][0] +=1
+    else:
+        register_count[code_linse_segment] = [1, None]
+    return register_count
+
+
+def regnames_count_recursive(
+    formatted_code: List[Any],
     register_count: Dict[str, int] = {}
 ) -> Dict[str, int]:
-    """Function counds the number of times a specific pseudo register is used in the code. It
-    stores the results in a dictionary."""
-    for line in code:
-        for i in range(1, len(line)):
-            if line[i][0] == "#":
-                continue
-            if line[i] == "sp":
-                continue
-            if line[i] in register_count:
-                register_count[line[i]][0] += 1
-            else:
-                register_count[line[i]] = [1, None]
-    return register_count
+    if len(formatted_code) == 0:
+        return register_count
+    
+    head, *tail = formatted_code
+    filtered        = list(filter(lambda x: x[0] != "#" and x !="sp", head[1:]))
+    register_count  = list(map(lambda x, y=register_count: regnames_count_predicate(x, y), filtered))[0]
+
+    return regnames_count_recursive(tail, register_count)
 
 
 def format_pseudo_output(
@@ -700,97 +713,235 @@ def pseudo_compile(code: str, program: Program):
     return pseudo_code
 
 
-def compile_pseudo_code(code: str, pseudo_code: str):
+def allocate_function_registers(
+    register : str,
+    register_count: Dict[str, int]
+)-> Dict[str, int]:
+    """
+    Function allocates space in register status objecct
+    """
+    if register in register_count:
+        Registers.register_status[register] = RegisterStatus.ALLOCATED
+        register_count[register][1] = register
+    return register_count
+
+
+def replace_pseudo_registers_with_real_registers(
+    code_line : str, #line
+    word_to_replace : str,
+    register_count : Dict[str, int],
+    register_list: List[str]
+) -> Optional[Tuple[str, Dict[str, int]]]:
+    """
+    Function tries to replace the 'word_to_replace' with an actual register.
+    It does so by recursively looping over the registers that are present in the register_count 
+    dictionary.
+
+    Args:
+        code_line:          The line of code which contains the pseudo register to be replaced
+        word_to_replace:    The pseudo register to be replaced
+        register_count:     The dictionary containing the number of times each register is used
+        register_list:      Tries to find these registers in the code_line
+
+    Returns:
+        Either None or a tuple containing:
+            1. The line of code with the pseudo register replaced with a real register
+            2. The dictionary containing the number of times each pseudo register is still used
+
+        None is returned if the lined contained no registers that could be replaced
+    """
+    if len(register_list) == 0:
+        return None
+
+    register, *tail =register_list
+
+    regex = re.compile(r"\b" + register + r"\b")
+    if regex.match(word_to_replace):
+        if(register_count[register][1] == None):
+            allocated_reg = Registers.allocate_register()
+            register_count[register][1] = allocated_reg
+            code_line = re.sub(regex, " " + allocated_reg + " ", code_line)
+        else:
+            code_line = re.sub(regex, " " + register_count[register][1] + " ", code_line)
+        register_count[register][0] -= 1
+        if(register_count[register][0] == 0):
+            Registers.free_register(register_count[register][1])
+            register_count[register][1] = None
+        if(register_count[register][0] < 0):
+            print("ERROR: register count < 0")
+            exit(1)
+        return code_line, register_count
+    return replace_pseudo_registers_with_real_registers(code_line, word_to_replace, register_count, tail)
+    
+
+def assign_registers(
+    pseudo_code_line : str,
+    reversed_split_line : List[str],
+    register_count : Dict[str, int],
+    compiled_line : str = ""
+) -> Tuple[str, Dict[str, int]]:
+    """
+    Function and subfunctions replace pseudo registers in a code line with real registers. 
+    
+    Args:
+        pseudo_code_line: The line of code to replace pseudo registers with real registers
+        reversed_split_line: The line of code split into words
+        register_count: The dictionary containing the number of times each register is used
+        compiled_line: The line of code with pseudo registers replaced with real registers
+
+    Returns:
+        A tuple containing:
+            1. The line of code with pseudo registers replaced with real registers
+            2. The dictionary containing the number of times each pseudo register is still used
+    """
+    if len(reversed_split_line) == 0:
+        # A
+        compiled_line += pseudo_code_line + "\n"
+        return compiled_line, register_count
+
+    head, *tail = reversed_split_line
+    result = replace_pseudo_registers_with_real_registers(pseudo_code_line, head, register_count, register_count)
+    if not result:
+        # skip line if no registers were replaced
+        return assign_registers(pseudo_code_line, tail, register_count, compiled_line)
+
+    pseudo_code_line, register_count = result
+    return assign_registers(pseudo_code_line, tail, register_count, compiled_line)
+
+
+def assign_registers_to_pseudo_registers(
+    pseudo_code_line : str,
+    split_line : List[str],
+    compiled_code : str,
+    register_count : Dict[str, int]
+) -> Tuple[str, Dict[str, int]]:
+    """
+    Function and subrunctions recursively loop over pesudo code lines to replace the pseudo registers with real registers.
+
+    Args:
+        pseudo_code_line:   The line of code to replace pseudo registers with real registers
+        split_line:         The line of code split into words
+        compiled_code:      Compiled code
+        register_count:     The dictionary containing the number of times each pseudo register is still used
+
+    Returns:
+        A tuple containing:
+            1. The compiled code thus far
+            2. The dictionary containing the number of times each pseudo register is still used
+    """
+
+    # Replace pseudo registers with real registers
+    compiled_line, register_count = assign_registers(pseudo_code_line, list(reversed(split_line)), register_count)
+
+    # Optionally Replace notpush and notpop with real registers. 
+    # Add compiled lines to compiled code
+    regex_not_push = re.compile(r"\b" + "notpush" + r"\b")
+    regex_not_pop = re.compile(r"\b" + "notpop" + r"\b")
+    if regex_not_push.findall(compiled_line):
+        potential_push_registers = ["r0", "r1", "r2", "r3"]
+        regex = re.compile(r"\b" + "r[0-9]" + r"\b")
+
+        registers_to_push = list(filter(lambda x, not_push_registers=re.findall(regex, compiled_line): False if x in not_push_registers else True, potential_push_registers))
+        compiled_code += "\tpush".ljust(10) + "{ " + " , ".join(registers_to_push) + " }\n"
+   
+    elif regex_not_pop.findall(compiled_line):
+        potential_pop_registers = ["r0", "r1", "r2", "r3"]
+        regex = re.compile(r"\b" + "r[0-9]" + r"\b")
+
+        registers_to_push = list(filter(lambda x, not_push_registers=re.findall(regex, compiled_line): False if x in not_push_registers else True, potential_pop_registers))
+        compiled_code += "\tpop".ljust(10) + "{ " + " , ".join(registers_to_push) + " }\n"
+    else:
+        compiled_code += compiled_line
+    
+    return compiled_code, register_count
+
+
+
+def compile_pseudo_code_loop(
+    unformatted_pseudo_code: str, 
+    register_count : Dict[str, int],
+    compiled_code :str = "",
+) -> str:
+    """
+    Function and subfunctions recursively loop over pesudo code lines and compile them into real coretx-m0 code.
+
+    Args:
+        unformatted_pseudo_code     : The unformatted pseudo code
+        register_count              : The dictionary containing the number of times each pseudo register is still used
+        compiled_code               : String containing the compiled code
+
+    Returns:
+        string containing the compiled code
+    """
+    if len(unformatted_pseudo_code) == 0:
+        return compiled_code
+
+    pseudo_compiled_line, *tail = unformatted_pseudo_code
+    pseudo_compiled_split_line = pseudo_compiled_line.split()
+    pseudo_compiled_split_line = list(filter(lambda x: x != ",", pseudo_compiled_split_line))
+    
+    # Skip empty lines
+    if not pseudo_compiled_split_line:
+        compiled_code += "\n"
+
+    # Skip branch, load, store, push and pop lines
+    elif  pseudo_compiled_split_line[0] == "beq" or pseudo_compiled_split_line[0] == "bne" or pseudo_compiled_split_line[0] == "bgt" or pseudo_compiled_split_line[0] == "blt" or pseudo_compiled_split_line[0] == "b" or \
+          pseudo_compiled_split_line[0] == "str" or pseudo_compiled_split_line[0] == "ldr" or pseudo_compiled_split_line[0] == "bl" or pseudo_compiled_split_line[0][0] == "." or pseudo_compiled_split_line[0][-1] == ":" or \
+          pseudo_compiled_split_line[0] == "push" or pseudo_compiled_split_line[0] == "pop":
+        compiled_code += pseudo_compiled_line + "\n"
+    else:
+
+    # For everything else, replace pseudo registers with real registers
+        compiled_code, register_count = assign_registers_to_pseudo_registers(pseudo_compiled_line, pseudo_compiled_split_line, compiled_code, register_count)
+    
+    # Loop until all lines are compiled
+    return compile_pseudo_code_loop(tail, register_count, compiled_code)
+
+
+def compile_pseudo_code(
+    code: str, 
+    pseudo_code: str
+) -> str:
     """
     Compile the generated pseudo code into actual Cortex-m0 assembly code.
+
+    Steps taken to compile:
+        1. Split the pseudo code into lines
+        2. Remove empty lines
+        3. Count the number of times each pseudo register is used and store it in register_count
+        4. Replace pseudo registers with real registers. Do this from right to left, so that the rightmost register is replaced first.
+        5. For each pseudo register it encounters do:
+            5a. Allocate a cortex m0 registers for the pseudo register and store the allocated register it in register_count
+            5b. Subtract 1 from the number of times the pseudo register is still used
+            5c. If the number of times the pseudo register is still used is 0, free the cortex m0 register
+        6. Replace notpush and notpop with real registers. (invert them)
     
     Args:
         code:           The code that is being lexed, parsed, and compiled.
         pseudo_code:    The pseudo code to compile
+
+    Returns:
+        The compiled code
     """
+    formatted_pseudo_output = list(map(format_pseudo_output, pseudo_code.split("\n")))
+    formatted_pseudo_output = list(filter(lambda x: x != None, formatted_pseudo_output))
 
-    formatted_pseudo_output = map(format_pseudo_output, pseudo_code.split("\n"))
-
-    # for line in formatted_pseudo_output:
-    #     print(line)
-
-    register_count = {}
-    register_count = regnames_count(formatted_pseudo_output, register_count)
-    print()
-    for register in register_count:
-        print(f"{register}".ljust(60), f"{register_count[register]}")
-    print()
+    register_count          = regnames_count_recursive(formatted_pseudo_output)
 
     # Set function parameters to allcoated state
     Registers.free_all_registers()
-    for register in Registers.register_status:
-        if register in register_count:
-            Registers.register_status[register] = RegisterStatus.ALLOCATED
-            register_count[register][1] = register
-            
-    for line in pseudo_code.split("\n"):
-        split_line = line.split()
-        if not split_line:
-            print()
-            continue
-        if split_line[0] == "beq" or split_line[0] == "bne" or split_line[0] == "bgt" or split_line[0] == "blt" or split_line[0] == "b" or split_line[0] == "str" or split_line[0] == "ldr" or split_line[0] == "bl":
-                print(line)
-                continue
-        for word in reversed(split_line):
-            for register in register_count:
-                regex = re.compile(r"\b" + register + r"\b")
-                if regex.match(word):
-                    if(register_count[register][1] == None):
-                        allocated_reg = Registers.allocate_register()
-                        register_count[register][1] = allocated_reg
-                        line = re.sub(regex, " " + allocated_reg + " ", line)
-                    else:
-                        line = re.sub(regex, " " + register_count[register][1] + " ", line)
-                    register_count[register][0] -= 1
-                    if(register_count[register][0] == 0):
-                        Registers.free_register(register_count[register][1])
-                        register_count[register][1] = None
-                    if(register_count[register][0] < 0):
-                        print("ERROR: register count < 0")
-                        exit(1)
-                    break
-        
-        regex = re.compile(r"\b" + "notpush" + r"\b")
-        if regex.findall(line):
-            potential_push_registers = ["r0", "r1", "r2", "r3"]
-            regex = re.compile(r"\b" + "r[0-9]" + r"\b")
-            for register in re.findall(regex, line):
-                try:
-                    potential_push_registers.remove(register)
-                except:
-                    pass
-            
-            print("\tpush".ljust(10), " { ", end="")
-            for register in potential_push_registers:
-                print(register, end=" , ")
-            print("}")
-            continue
+
+    register_count          = list(map(lambda x, y=register_count: allocate_function_registers(x, y), Registers.register_status))[0]
+    compiled_code           = compile_pseudo_code_loop(pseudo_code.split("\n"), register_count)
+    return compiled_code
     
-        regex = re.compile(r"\b" + "notpop" + r"\b")
-        if regex.findall(line):
-            potential_push_registers = ["r0", "r1", "r2", "r3"]
-            regex = re.compile(r"\b" + "r[0-9]" + r"\b")
-            for register in re.findall(regex, line):
-                try:
-                    potential_push_registers.remove(register)
-                except:
-                    pass
-            
-            print("\tpop".ljust(10), " { ", end="")
-            for register in potential_push_registers:
-                print(register, end=" , ")
-            print("}")
-            continue
-        print(line)
 
 
 
-def compile(code: str, program: Program) -> str:
+def compile(
+    code: str, 
+    program: Program
+) -> str:
     """Function compiles the program into CM0 code.
 
     Returns a string containing the compiled code, which can be written
@@ -803,23 +954,22 @@ def compile(code: str, program: Program) -> str:
     returns:
         A string containing the compiled code.
     """
-    pseudo_compiled_code = pseudo_compile(code, program)
-    print(pseudo_compiled_code)
+    pseudo_compiled_code    = pseudo_compile(code, program)
+    compiled_code           = compile_pseudo_code(code, pseudo_compiled_code)
+    
+    preamble = ".cpu cortex-m0\n.text\n.align 4\n\n"
+    return preamble + compiled_code
     
     
 
 
 if __name__ == '__main__':
-    # if len(sys.argv) < 2:
-    #     print("Expected filename")
-    #     exit()
-
-    # with open("D:\\Nathan\\Bestanden\\ATP\\testfile.txt", "rb") as f:
-    #     code = f.read().decode("utf-8")  
-    with open("/home/nathan/Documents/ATP/random_functions.txt", "rb") as f:
-        code = f.read().decode("utf-8")    
-    # with open(sys.argv[1], "rb") as f:
-    #     code = f.read().decode("utf-8")  
+    if len(sys.argv) < 2:
+        print("Expected filename")
+        exit()
+  
+    with open(sys.argv[1], "rb") as f:
+        code = f.read().decode("utf-8")  
 
     lexed = lex(code, search_match, TokenExpressions)
     tokens = list(filter(lambda token: token.tokentype_ != TokenTypes.NONE, lexed))
@@ -832,6 +982,7 @@ if __name__ == '__main__':
     
     time_start = time.time()
     result = compile(code, program)
+    print(result)
     time_stop = time.time()
     print("program finished in", round(time_stop-time_start, 5), "s")
     

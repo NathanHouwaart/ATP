@@ -265,6 +265,166 @@ program finished in 0.71961 s
 
 ```
 
+### Compiler
+#### How it works
+The compiler works in two distinctive steps: 
+ 1. Compile the AST in to pseudo code with pseudo registers
+ 2. Compile the pseudo registers into real cortex-m0 registers
+
+
+**Pseudo Compiling**  
+During the first step, all registers will be given a special name based on the location in the file and the type of operation it is used for. An example of this:
+<details>
+<summary>Pseudo compile output</summary>
+
+```
+.global odd 
+odd: 
+        push     { lr , r4 - r7 } 
+        mov      literal_value_0_27_28_reg , #0 
+        mov      literal_value_0_27_28_n_res_reg , #1 
+        cmp      literal_value_0_27_28_reg , r0 
+        beq      literal_value_0_27_28_eq_n_res_equal 
+        mov      literal_value_0_27_28_n_res_reg , #0 
+literal_value_0_27_28_eq_n_res_equal: 
+        cmp      literal_value_0_27_28_n_res_reg , #0 
+        beq      odd_if_end_0_20_48 
+        mov      literal_value_0_43_44_reg , #0 
+        mov      r0 , literal_value_0_43_44_reg 
+        b        odd_end 
+odd_if_end_0_20_48: 
+        mov      literal_value_1_64_65_reg , #1 
+        sub      literal_value_1_64_65_n_res_reg , r0 , literal_value_1_64_65_reg 
+        notpush  { literal_value_1_64_65_n_res_reg }
+        mov      r0 , literal_value_1_64_65_n_res_reg 
+        bl       even 
+        mov      literal_value_1_64_65_n_res_reg , r0 
+        notpop   { literal_value_1_64_65_n_res_reg }
+        mov      r0 , literal_value_1_64_65_n_res_reg 
+odd_end: 
+        pop      { pc , r4 - r7 } 
+
+.global even 
+even: 
+        push     { lr , r4 - r7 } 
+        mov      literal_value_0_102_103_reg , #0 
+        mov      literal_value_0_102_103_n_res_reg , #1 
+        cmp      literal_value_0_102_103_reg , r0 
+        beq      literal_value_0_102_103_eq_n_res_equal 
+        mov      literal_value_0_102_103_n_res_reg , #0 
+literal_value_0_102_103_eq_n_res_equal: 
+        cmp      literal_value_0_102_103_n_res_reg , #0 
+        beq      even_if_end_0_95_123 
+        mov      literal_value_1_118_119_reg , #1 
+        mov      r0 , literal_value_1_118_119_reg 
+        b        even_end 
+even_if_end_0_95_123: 
+        mov      literal_value_1_138_139_reg , #1 
+        sub      literal_value_1_138_139_n_res_reg , r0 , literal_value_1_138_139_reg 
+        notpush  { literal_value_1_138_139_n_res_reg }
+        mov      r0 , literal_value_1_138_139_n_res_reg 
+        bl       odd 
+        mov      literal_value_1_138_139_n_res_reg , r0 
+        notpop   { literal_value_1_138_139_n_res_reg }
+        mov      r0 , literal_value_1_138_139_n_res_reg 
+even_end: 
+        pop      { pc , r4 - r7 } 
+```
+
+</details>
+
+Lets take the line `mov      literal_value_0_102_103_reg , #0` as an example. Here, a literal value with the value of 0 needs to be loaded. The pseudo compiler has created a pseudo register based on the type: a `literal value` with the `value of 0`, the location in code `(intex 102-103)` and appended `_reg` after it. Thus, the pseudo register `literal_value_0_102_103_reg` is created.  
+
+Two lines after that line, you can see that that same pseudo register is used in a cmp statement. This compare statement apperantly compares something in r0 with `literal_value_0_102_103_reg`. After that, the pseudo register is not used anymore.  With this in mind, the actual compiler that will pseudo compile these registers will now know that those two registers **must** be the same.  
+
+**Compiling the pseudo code**  
+The compilation of the pseudo code is done in several steps:
+  1. For every pseudo register used, count how many times it is used and store it in a dictionary.  
+    - The keys are the pseudo register names, the values are a list containing the amount of times the register is used along side the assinged cortex m0 register. The latter always initialises to None. 
+  2. For every line of code, compile the pseudo registers from **right to left**. Why this is done is explained in step 3.  
+    - rules: skip branches, loads, stores, labels, etc.
+  3. For every pseudo register in a line:  
+    - check if a register has already been assigned  
+    - if yes, use that register  
+    - if no, assign a cortex-m0 registrer for this pseudo register  
+    - subtract 1 from the amount of times the pseudo register is used  
+    - if the pseudo register is not used anymore (amount = 0), free the cortex-m0 register so other pseudo registers can use it  
+    - Doing this, and keeping in mind we are reading from right to left, a cortex m0 register that is used as an operand for an `add`, `sub` or `mul` instruction, is now free to be used to store the result of these instructions in. This way, the compiler is smart enough to produce an output similair to `add r0, r1, r0`  
+  4. Compile the notpop and notpush instructions. These are inverse pop and inverse push pseudo instructions instructing the compiler **NOT** to push these registers to the stack, but instead save the other registers that are not in this list (hence the not). This only applies to `r0 - r3`
+  5. Add preamble to the compiled code
+  6. Return and print compiled code
+
+#### How to use
+The compiler is located in the [compiler.py](compiler_module/compiler.py) file in the [compiler_module](compiler_module) folder. To use the compiler, provide a source file with the Alt-U code like so:
+`python3 compiler.py <filename>`
+The compiler will then compile the code and print the compiled code to the terminal. An example of this:
+
+<details>
+<summary>Compiler output</summary>
+
+```bash
+$ python3 compiler_module/compiler.py double_recursive.txt 
+.cpu cortex-m0
+.text
+.align 4
+
+.global odd 
+odd: 
+        push     { lr , r4 - r7 } 
+        mov       r1  , #0 
+        mov       r2  , #1 
+        cmp       r1  ,  r0  
+        beq      literal_value_0_27_28_eq_n_res_equal 
+        mov       r2  , #0 
+literal_value_0_27_28_eq_n_res_equal: 
+        cmp       r2  , #0 
+        beq      odd_if_end_0_20_48 
+        mov       r1  , #0 
+        mov       r0  ,  r1  
+        b        odd_end 
+odd_if_end_0_20_48: 
+        mov       r1  , #1 
+        sub       r1  ,  r0  ,  r1  
+        push     { r0 , r2 , r3 }
+        mov       r0  ,  r1  
+        bl       even 
+        mov       r1  ,  r0  
+        pop      { r0 , r2 , r3 }
+        mov       r0  ,  r1  
+odd_end: 
+        pop      { pc , r4 - r7 } 
+
+.global even 
+even: 
+        push     { lr , r4 - r7 } 
+        mov       r1  , #0 
+        mov       r2  , #1 
+        cmp       r1  ,  r0  
+        beq      literal_value_0_102_103_eq_n_res_equal 
+        mov       r2  , #0 
+literal_value_0_102_103_eq_n_res_equal: 
+        cmp       r2  , #0 
+        beq      even_if_end_0_95_123 
+        mov       r1  , #1 
+        mov       r0  ,  r1  
+        b        even_end 
+even_if_end_0_95_123: 
+        mov       r1  , #1 
+        sub       r1  ,  r0  ,  r1  
+        push     { r0 , r2 , r3 }
+        mov       r0  ,  r1  
+        bl       odd 
+        mov       r1  ,  r0  
+        pop      { r0 , r2 , r3 }
+        mov       r0  ,  r1  
+even_end: 
+        pop      { pc , r4 - r7 } 
+
+
+program finished in 0.00263 s
+```
+</details>
+
 ### Error messaging
 The Alt-U programming Language comes with a wide veriaty of error messages. Error messages range from: invalid syntax messages and undefined identifier messages. The error messaging system will print out an error message which exactly pinpoints where the error message is located. Examples of error messages are:
 
