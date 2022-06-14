@@ -755,7 +755,7 @@ def allocate_function_registers(
     return register_count
 
 
-def replace_pseudo_registers_with_real_registers(
+def replace_pseudo_register_with_real_register(
     code_line : str, #line
     word_to_replace : str,
     register_count : Dict[str, int],
@@ -800,10 +800,10 @@ def replace_pseudo_registers_with_real_registers(
             print("ERROR: register count < 0")
             exit(1)
         return code_line, register_count
-    return replace_pseudo_registers_with_real_registers(code_line, word_to_replace, register_count, tail)
+    return replace_pseudo_register_with_real_register(code_line, word_to_replace, register_count, tail)
     
 
-def assign_registers(
+def assign_registers_to_line(
     pseudo_code_line : str,
     reversed_split_line : List[str],
     register_count : Dict[str, int],
@@ -829,16 +829,16 @@ def assign_registers(
         return compiled_line, register_count
 
     head, *tail = reversed_split_line
-    result = replace_pseudo_registers_with_real_registers(pseudo_code_line, head, register_count, register_count)
+    result = replace_pseudo_register_with_real_register(pseudo_code_line, head, register_count, register_count)
     if not result:
         # skip line if no registers were replaced
-        return assign_registers(pseudo_code_line, tail, register_count, compiled_line)
+        return assign_registers_to_line(pseudo_code_line, tail, register_count, compiled_line)
 
     pseudo_code_line, register_count = result
-    return assign_registers(pseudo_code_line, tail, register_count, compiled_line)
+    return assign_registers_to_line(pseudo_code_line, tail, register_count, compiled_line)
 
 
-def assign_registers_to_pseudo_registers(
+def compile_pseudo_code_line(
     pseudo_code_line : str,
     split_line : List[str],
     compiled_code : str,
@@ -860,7 +860,7 @@ def assign_registers_to_pseudo_registers(
     """
 
     # Replace pseudo registers with real registers
-    compiled_line, register_count = assign_registers(pseudo_code_line, list(reversed(split_line)), register_count)
+    compiled_line, register_count = assign_registers_to_line(pseudo_code_line, list(reversed(split_line)), register_count)
 
     # Optionally Replace notpush and notpop with real registers. 
     # Add compiled lines to compiled code
@@ -921,7 +921,7 @@ def compile_pseudo_code_loop(
     else:
 
     # For everything else, replace pseudo registers with real registers
-        compiled_code, register_count = assign_registers_to_pseudo_registers(pseudo_compiled_line, pseudo_compiled_split_line, compiled_code, register_count)
+        compiled_code, register_count = compile_pseudo_code_line(pseudo_compiled_line, pseudo_compiled_split_line, compiled_code, register_count)
     
     # Loop until all lines are compiled
     return compile_pseudo_code_loop(tail, register_count, compiled_code)
