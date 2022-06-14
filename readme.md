@@ -425,6 +425,60 @@ program finished in 0.00263 s
 ```
 </details>
 
+When compiling the compiled code with HWLIB (like done in main.cpp), the program output is as follows:
+
+```
+test_function_greater:
+with values(1, 2)        normal: 0      compiled:0
+with values(2, 1)        normal: 1      compiled:1
+with values(40, 40)      normal: 0      compiled:0
+test_function_lesser:
+with values(1, 2)        normal: 1      compiled:1
+with values(2, 1)        normal: 0      compiled:0
+with values(40, 40)      normal: 0      compiled:0
+test_function_equal:
+with values(1, 2)        normal: 0      compiled:0
+with values(2, 1)        normal: 0      compiled:0
+with values(40, 40)      normal: 1      compiled:1
+test_function_if:
+with values(60,60)       normal: 142    compiled:142
+with values(10,10)       normal: 42     compiled:42
+factorial(9)             normal: 362880 compiled:362880
+fibonacci(25)            normal: 75025  compiled:75025
+even(0)         :1      odd(0)      :0
+even(1)         :0      odd(1)      :1
+even(2)         :1      odd(2)      :0
+even(3)         :0      odd(3)      :1
+even(4)         :1      odd(4)      :0
+even(5)         :0      odd(5)      :1
+even(6)         :1      odd(6)      :0
+even(7)         :0      odd(7)      :1
+even(8)         :1      odd(8)      :0
+even(9)         :0      odd(9)      :1
+even(10)        :1      odd(10)     :0
+even(11)        :0      odd(11)     :1
+even(12)        :1      odd(12)     :0
+even(13)        :0      odd(13)     :1
+even(14)        :1      odd(14)     :0
+random_function(0)      compiled:42
+random_function(1)      compiled:2
+random_function(2)      compiled:2
+random_function(3)      compiled:42
+random_function(4)      compiled:2
+random_function(5)      compiled:2
+random_function(6)      compiled:42
+random_function(7)      compiled:2
+random_function(8)      compiled:2
+random_function(9)      compiled:42
+random_function(10)     compiled:2
+random_function(11)     compiled:2
+random_function(12)     compiled:42
+random_function(13)     compiled:42
+random_function(14)     compiled:42
+test_test: 60
+
+```
+
 ### Error messaging
 The Alt-U programming Language comes with a wide veriaty of error messages. Error messages range from: invalid syntax messages and undefined identifier messages. The error messaging system will print out an error message which exactly pinpoints where the error message is located. Examples of error messages are:
 
