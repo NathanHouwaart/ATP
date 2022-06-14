@@ -342,15 +342,15 @@ The compilation of the pseudo code is done in several steps:
   1. For every pseudo register used, count how many times it is used and store it in a dictionary.  
     - The keys are the pseudo register names, the values are a list containing the amount of times the register is used along side the assinged cortex m0 register. The latter always initialises to None. 
   2. For every line of code, compile the pseudo registers from **right to left**. Why this is done is explained in step 3.  
-    - rules: skip branches, loads, stores, labels, etc.
+    - Rules: skip branches, loads, stores, labels, etc.
   3. For every pseudo register in a line:  
-    - check if a register has already been assigned  
-    - if yes, use that register  
-    - if no, assign a cortex-m0 registrer for this pseudo register  
-    - subtract 1 from the amount of times the pseudo register is used  
-    - if the pseudo register is not used anymore (amount = 0), free the cortex-m0 register so other pseudo registers can use it  
-    - Doing this, and keeping in mind we are reading from right to left, a cortex m0 register that is used as an operand for an `add`, `sub` or `mul` instruction, is now free to be used to store the result of these instructions in. This way, the compiler is smart enough to produce an output similair to `add r0, r1, r0`  
-  4. Compile the notpop and notpush instructions. These are inverse pop and inverse push pseudo instructions instructing the compiler **NOT** to push these registers to the stack, but instead save the other registers that are not in this list (hence the not). This only applies to `r0 - r3`
+    - Check if a cortex-m0 register has already been assigned  
+    - If yes, use that cortex-m0  register  
+    - If no, assign a cortex-m0 registrer for this pseudo register  
+    - Subtract 1 from the amount of times the pseudo register is used  
+    - If the pseudo register is not used anymore (amount = 0), free the cortex-m0 register so other pseudo registers can use it  
+    - Doing this (and keeping in mind we are reading from **right to left** ) a cortex m0 register that is used as an operand for an `add`, `sub` or `mul` instruction, is now free and can be used to store the result of these instructions in. This way, the compiler is smart enough to produce an output similair to `add r0, r1, r0`  
+  4. Compile the notpop and notpush instructions. These are inverse pop and inverse push pseudo instructions instructing the compiler **NOT** to push these registers to the stack, but instead save the other registers that are not in this list (hence the not). This only applies to `r0 - r3` and is used to preserve important regiters over a function call.
   5. Add preamble to the compiled code
   6. Return and print compiled code
 
@@ -362,7 +362,7 @@ The compiler will then compile the code and print the compiled code to the termi
 <details>
 <summary>Compiler output</summary>
 
-```bash
+```asm
 $ python3 compiler_module/compiler.py double_recursive.txt 
 .cpu cortex-m0
 .text
