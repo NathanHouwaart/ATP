@@ -72,6 +72,53 @@ class Registers:
             Registers.register_status[Registers.register_list[i]] = RegisterStatus.ALLOCATED
 
 
+class CM0_Registers:
+    def __init__(self) -> None:
+        self.register_status = { 
+            "r0": RegisterStatus.FREE, "r1":RegisterStatus.FREE, "r2":RegisterStatus.FREE, 
+            "r3": RegisterStatus.FREE, "r4":RegisterStatus.FREE, "r5":RegisterStatus.FREE, 
+            "r6": RegisterStatus.FREE, "r7":RegisterStatus.FREE}
+
+        self.register_list = ["r0", "r1", "r2", "r3", "r4", "r4", "r6", "r7"]
+
+    def free_all_registers(self):
+        self.register_status = dict.fromkeys(self.register_status, RegisterStatus.FREE)
+    
+   
+    def allocate_register(self):
+        for register in self.register_status:
+            if self.register_status[register] == RegisterStatus.FREE:
+                self.register_status[register] = RegisterStatus.ALLOCATED
+                return register
+        print("No registers left")
+        exit()
+    
+    
+    def allocate_specific_register(self, register : str):
+        if self.register_status[RegisterStatus.FREE]:
+            self.register_status[register] = RegisterStatus.ALLOCATED
+            return register
+        print("Register {} is not free!".format(register))
+        exit()
+    
+    
+    def free_register(self, register: str):
+        if(self.register_status[register] == RegisterStatus.FREE):    
+            print("Register already free")
+            exit()
+        self.register_status[register] = RegisterStatus.FREE
+        
+
+    def has_free_registers(self):
+        for register in self.register_status:
+            if(self.register_status[register] == RegisterStatus.FREE):
+                return True
+        return False
+
+
+    def allocate_register_range(self, start, end):
+        for i in range(start, end):
+            self.register_status[self.register_list[i]] = RegisterStatus.ALLOCATED
 
 
 #############################################################################

@@ -960,7 +960,7 @@ def compile_pseudo_code(
     # Set function parameters to allcoated state
     Registers.free_all_registers()
 
-    register_count          = list(map(lambda x, y=register_count: allocate_function_registers(x, y), cm0_regisers.register_status))[0]
+    register_count          = list(map(lambda x, y=register_count: allocate_function_registers(x, y), Registers.register_status))[0]
     compiled_code           = compile_pseudo_code_loop(pseudo_code.split("\n"), register_count)
     return compiled_code
     
